@@ -85,7 +85,48 @@ if (isset($_POST['action'])) {
         }
         $stmt_insert_transaksi->close();
     }
-    
+    //=====================================
+    // AKSI BARU: AMBIL TIKET OTOMATIS (TOMBOL DISPENSER)
+    //=====================================
+    elseif ($_POST['action'] == 'ambil_tiket_otomatis') {
+        $id_petugas = $_SESSION['user_id'];
+        
+        // Generate Plat Sementara (Format: AUTO-[JAM]-[ACAK])
+        $plat_sementara = "ENTRY-" . date('Hi') . "-" . rand(10,99);
+        $jenis_default = "mobil"; // Default jenis
+
+        // 1. Simpan ke Master Kendaraan (Sifatnya sementara)
+        $stmt_kend = $db->prepare("INSERT INTO kendaraan (plat_nomor, jenis) VALUES (?, ?)");
+        $stmt_kend->bind_param("ss", $plat_sementara, $jenis_default);
+        $stmt_kend->execute();
+        $id_kendaraan = $stmt_kend->insert_id;
+        $stmt_kend->close();
+
+        // 2. Simpan Transaksi
+        $waktu_masuk = date('Y-m-d H:i:s');
+        $kode_prefix = 'PK-' . date('Ymd') . '-';
+        
+        $stmt_trx = $db->prepare("INSERT INTO transaksi_parkir (id_kendaraan, kode_barcode, waktu_masuk, status, id_petugas_masuk) VALUES (?, '', ?, 'masuk', ?)");
+        $stmt_trx->bind_param("isi", $id_kendaraan, $waktu_masuk, $id_petugas);
+        
+        if ($stmt_trx->execute()) {
+            $trx_id = $stmt_trx->insert_id;
+            $barcode_final = $kode_prefix . str_pad($trx_id, 5, '0', STR_PAD_LEFT);
+            $db->query("UPDATE transaksi_parkir SET kode_barcode = '$barcode_final' WHERE id = $trx_id");
+
+            $response['status'] = 'success';
+            $response['message'] = 'Tiket berhasil dikeluarkan.';
+            $response['data'] = [
+                'transaksi_id' => $trx_id,
+                'kode_barcode' => $barcode_final,
+                'plat_nomor'   => $plat_sementara,
+                'waktu_masuk'  => $waktu_masuk
+            ];
+        } else {
+            $response['message'] = 'Gagal generate tiket.';
+        }
+        $stmt_trx->close();
+    }
     //=====================================
     // AKSI: CARI KENDARAAN (UNTUK KELUAR)
     //=====================================

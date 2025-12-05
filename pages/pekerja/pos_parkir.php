@@ -153,118 +153,152 @@ $db->close();
 <script>
 $(document).ready(function() {
     
-    // Fokus otomatis ke input saat halaman dimuat
+    // ============================================================
+    // ⚙️ KONFIGURASI ALAMAT IP PERANGKAT KERAS (HARDWARE)
+    // ============================================================
+    // Isi alamat IP sesuai dengan settingan Mikrokontroller Anda
+    // ============================================================
+    
+    // 1. IP PALANG PINTU MASUK (Untuk membuka gate saat ambil tiket)
+    const IP_PALANG_MASUK = "http://192.168.1.105/open"; 
+
+    // 2. IP PALANG PINTU KELUAR (Untuk membuka gate saat bayar)
+    const IP_PALANG_KELUAR = "http://192.168.1.106/open"; 
+
+    // 3. IP PRINTER TIKET (Opsional, jika printer pakai Network/ESP32)
+    // Jika printer USB langsung ke PC, tidak perlu ini (handle via window.print)
+    const IP_PRINTER_TIKET = "http://192.168.1.200/print"; 
+
+    // ============================================================
+
+
+    // Fokus input
     $('#kode_input').focus();
 
-    // --- FUNGSI UTAMA ---
+    // --- FITUR BARU: TOMBOL AMBIL TIKET OTOMATIS (DISPENSER) ---
+    $('#btnAmbilTiketOtomatis').on('click', function() {
+        // Efek loading tombol
+        let btn = $(this);
+        let originalContent = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
+        btn.prop('disabled', true);
 
-    // 1. CARI TIKET / PLAT (UNTUK KELUAR)
-    $('#formCariTiket').on('submit', function(e) {
-        e.preventDefault();
-        var kode = $('#kode_input').val();
-        if (kode === '') return;
-        showLoadingCari(true);
-
-        // --- AJAX AKTIF ---
         $.ajax({
             type: 'POST',
-            url: '../../api/ajax_handler_pos.php', // Otak AJAX
-            data: { 
-                action: 'cari_tiket_atau_plat', 
-                kode_input: kode 
-            },
+            url: '../../api/ajax_handler_pos.php',
+            data: { action: 'ambil_tiket_otomatis' },
             dataType: 'json',
             success: function(response) {
                 if (response.status == 'success') {
-                    showPaymentState(response.data);
+                    
+                    // 1. Tampilkan Notifikasi Sukses
+                    Swal.fire({
+                        title: 'Tiket Keluar!',
+                        html: '<h2 class="text-2xl font-bold">'+response.data.kode_barcode+'</h2><p>Silakan masuk.</p>',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // 2. PERINTAH KE HARDWARE (Simultan)
+                    
+                    // A. Buka Palang Masuk
+                    panggil_hardware(IP_PALANG_MASUK, 'Palang Masuk');
+
+                    // B. Cetak Tiket (Membuka PDF di iframe tersembunyi agar langsung print)
+                    let printUrl = '../../cetak_tiket.php?id=' + response.data.transaksi_id;
+                    let iframe = $('<iframe>', { src: printUrl, width: 0, height: 0, css: { display: 'none' } }).appendTo('body');
+                    
                 } else {
-                    Swal.fire('Gagal!', response.message, 'error');
+                    Swal.fire('Gagal', response.message, 'error');
                 }
             },
             error: function() {
-                Swal.fire('Error!', 'Tidak bisa terhubung ke server.', 'error');
+                Swal.fire('Error', 'Koneksi server terputus', 'error');
             },
             complete: function() {
-                showLoadingCari(false);
+                btn.html(originalContent);
+                btn.prop('disabled', false);
             }
         });
     });
 
-    // 2. PROSES PEMBAYARAN (KELUAR)
+
+    // --- LOGIKA LAMA (FORM MANUAL MASUK) ---
+    $('#formKendaraanMasuk').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Tampilkan loading manual
+        $('#btnSubmitManual').prop('disabled', true).text('Menyimpan...');
+        
+        let formData = $(this).serialize();
+        $.ajax({
+            type: 'POST', url: '../../api/ajax_handler_pos.php', data: formData, dataType: 'json',
+            success: function(res) {
+                if(res.status == 'success') {
+                    Swal.fire('Berhasil', 'Data Manual Disimpan', 'success');
+                    
+                    // BUKA PALANG MASUK (Manual juga buka palang)
+                    panggil_hardware(IP_PALANG_MASUK, 'Palang Masuk'); 
+                    
+                    window.open('../../cetak_tiket.php?id=' + res.data.transaksi_id, '_blank');
+                    $('#formKendaraanMasuk')[0].reset();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            },
+            complete: function() {
+                $('#btnSubmitManual').prop('disabled', false).html('<i class="fas fa-save mr-2"></i> Simpan Manual');
+            }
+        });
+    });
+
+
+    // --- LOGIKA LAMA (KELUAR & BAYAR) ---
+    $('#formCariTiket').on('submit', function(e) {
+        e.preventDefault();
+        let kode = $('#kode_input').val();
+        if (kode === '') return;
+        showLoadingCari(true);
+
+        $.ajax({
+            type: 'POST', url: '../../api/ajax_handler_pos.php',
+            data: { action: 'cari_tiket_atau_plat', kode_input: kode }, dataType: 'json',
+            success: function(res) {
+                if(res.status=='success') showPaymentState(res.data);
+                else Swal.fire('Gagal', res.message, 'error');
+            },
+            complete: function() { showLoadingCari(false); }
+        });
+    });
+
     $('#formPembayaran').on('submit', function(e) {
         e.preventDefault();
         showLoadingProses(true);
 
-        // --- AJAX AKTIF ---
         $.ajax({
-            type: 'POST',
-            url: '../../api/ajax_handler_pos.php', // Otak AJAX
-            data: $(this).serialize(), // Kirim data form (action=proses_keluar, id, biaya)
-            dataType: 'json',
-            success: function(response) {
-                if (response.status == 'success') {
-                    Swal.fire({
-                        title: 'Pembayaran Berhasil!',
-                        text: 'Palang parkir terbuka. Cetak struk?',
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonText: 'Tutup Saja',
-                        cancelButtonText: 'Cetak Struk PDF',
-                        cancelButtonColor: '#3085d6',
-                    }).then((result) => {
-                        if (result.dismiss === Swal.DismissReason.cancel) {
-                            // 1. Cetak Struk
-                            window.open('../../cetak_struk.php?id=' + response.transaksi_id, '_blank');
-                        }
-                        
-                        // ▼▼▼ EDIT DI SINI ▼▼▼
-                        // 2. Panggil Palang Parkir
-                        // Ganti IP ini dengan IP Mikrokontroller Palang Keluar
-                        panggil_palang_parkir('http://192.168.1.103/open');
-                        // ▲▲▲ BATAS EDIT ▲▲▲
-                        
-                        showSearchState(); // Reset halaman
-                    });
+            type: 'POST', url: '../../api/ajax_handler_pos.php',
+            data: $(this).serialize(), dataType: 'json',
+            success: function(res) {
+                if(res.status=='success') {
+                    Swal.fire({title:'Lunas!', text:'Palang Terbuka', icon:'success', timer:2000, showConfirmButton:false});
+                    
+                    // 1. BUKA PALANG KELUAR (Panggil IP)
+                    panggil_hardware(IP_PALANG_KELUAR, 'Palang Keluar');
+
+                    // 2. Cetak Struk
+                    window.open('../../cetak_struk.php?id=' + res.transaksi_id, '_blank');
+                    
+                    showSearchState();
                 } else {
-                    Swal.fire('Gagal!', response.message, 'error');
+                    Swal.fire('Gagal', res.message, 'error');
                 }
             },
-            error: function() {
-                Swal.fire('Error!', 'Tidak bisa terhubung ke server.', 'error');
-            },
-            complete: function() {
-                showLoadingProses(false);
-            }
+            complete: function() { showLoadingProses(false); }
         });
     });
 
-    // 3. TOMBOL BATAL
-    $('#btnBatal').on('click', function() {
-        showSearchState();
-    });
-
-    // 4. HITUNG KEMBALIAN (Otomatis)
-    $('#jumlah_bayar').on('input', function() {
-        var totalBiaya = parseInt($('#hidden_total_biaya').val()) || 0;
-        var jumlahBayar = parseInt($(this).val()) || 0;
-        var kembalian = jumlahBayar - totalBiaya;
-        if (kembalian < 0) kembalian = 0;
-        $('#kembalian').val(new Intl.NumberFormat('id-ID').format(kembalian));
-    });
-
-    // 5. TOMBOL AKSI MANUAL (Scroll ke form)
-    $('#btnInputManual').on('click', function() {
-        $('html, body').animate({
-            scrollTop: $("#formKendaraanMasuk").offset().top - 100 
-        }, 500);
-        $('#plat_nomor_manual').focus();
-        $("#formKendaraanMasuk").parent().addClass('ring-2 ring-red-500 shadow-lg');
-        setTimeout(function() {
-            $("#formKendaraanMasuk").parent().removeClass('ring-2 ring-red-500 shadow-lg');
-        }, 2000);
-    });
-
-    // --- FUNGSI HELPER UI ---
+    // --- HELPER FUNCTIONS ---
     
     function showSearchState() {
         $('#paymentDetails').addClass('hidden');
@@ -273,8 +307,6 @@ $(document).ready(function() {
         $('#formPembayaran')[0].reset();
         $('#kembalian').val('');
         $('#kode_input').focus();
-        showLoadingCari(false);
-        showLoadingProses(false);
     }
     
     function showPaymentState(data) {
@@ -288,9 +320,8 @@ $(document).ready(function() {
         $('#formCariTiket').addClass('hidden');
         $('#paymentDetails').removeClass('hidden');
         $('#jumlah_bayar').focus();
-        showLoadingCari(false);
     }
-
+    
     function showLoadingCari(isLoading) {
         if (isLoading) {
             $('#iconCari').addClass('hidden');
@@ -318,32 +349,41 @@ $(document).ready(function() {
             $('#btnBatal').prop('disabled', false);
         }
     }
+    
+    $('#jumlah_bayar').on('input', function() {
+        var total = parseInt($('#hidden_total_biaya').val()) || 0;
+        var bayar = parseInt($(this).val()) || 0;
+        var kembali = bayar - total;
+        $('#kembalian').val(kembali < 0 ? 0 : new Intl.NumberFormat('id-ID').format(kembali));
+    });
+    
+    $('#btnBatal').click(function(){ showSearchState(); });
+    
+    $('#btnInputManual').on('click', function() {
+        $('html, body').animate({ scrollTop: $("#formKendaraanMasuk").offset().top - 100 }, 500);
+    });
 
-    // ▼▼▼ FUNGSI PANGGIL PALANG PARKIR ▼▼▼
-    /**
-     * Mengirim perintah HTTP GET ke mikrokontroller palang parkir
-     * @param {string} url - Alamat IP dan endpoint palang (misal: 'http://192.168.1.103/open')
-     */
-    function panggil_palang_parkir(url) {
-        console.log('Mengirim perintah buka palang ke: ' + url);
-        fetch(url)
-            .then(response => {
-                if (response.ok) {
-                    console.log('Respon Palang: OK');
-                    // Tampilkan notifikasi kecil jika perlu
-                    // Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Palang Terbuka!', showConfirmButton: false, timer: 1500 });
-                } else {
-                    console.error('Respon Palang: Gagal');
-                    Swal.fire('Error Palang!', 'Palang merespon gagal. Cek palang parkir.', 'error');
-                }
+
+    // ============================================================
+    // 🔌 FUNGSI PENGHUBUNG ALAT (HELPER)
+    // ============================================================
+    function panggil_hardware(url, namaAlat) {
+        console.log(`[HARDWARE] Mengirim sinyal ke ${namaAlat}: ${url}`);
+        
+        // Menggunakan 'no-cors' agar browser tidak memblokir IP lokal yang berbeda origin
+        fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                console.log(`[HARDWARE] Sinyal ke ${namaAlat} TERKIRIM.`);
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
+                });
+                Toast.fire({ icon: 'success', title: `${namaAlat} Terbuka` });
             })
-            .catch(error => {
-                console.error('Error koneksi ke Palang:', error);
-                // Tampilkan error jika palang/mikrokontroller mati atau IP salah
-                Swal.fire('Error Palang!', 'Tidak dapat terhubung ke palang parkir. Cek koneksi & IP Address!', 'error');
+            .catch(err => {
+                console.error(`[HARDWARE] Gagal menghubungi ${namaAlat}:`, err);
+                Swal.fire('Koneksi Alat Gagal', `Tidak dapat menghubungi IP ${namaAlat}. Cek kabel LAN/Wifi!`, 'warning');
             });
     }
-    // ▲▲▲ BATAS FUNGSI PALANG PARKIR ▲▲▲
 
 });
 </script>
