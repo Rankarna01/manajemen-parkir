@@ -137,60 +137,74 @@ $db->close();
     
     <?php require_once '../../templates/navbar_app.php'; // Navbar ?>
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-secondary p-6">
         
         <div class="container mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-800">Manajemen Pekerja</h2>
-                    <p class="text-gray-600">Tambah, edit, atau hapus data petugas parkir.</p>
+                    <h2 class="text-2xl font-bold text-primary tracking-tight">Manajemen Pekerja</h2>
+                    <p class="text-gray-500">Tambah, edit, atau hapus data petugas parkir.</p>
                 </div>
-                <button id="btnTambahModal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                <button id="btnTambahModal" class="bg-accent hover:bg-yellow-500 text-primary font-bold py-2.5 px-5 rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center">
                     <i class="fas fa-plus mr-2"></i> Tambah Pekerja
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-primary text-white">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bergabung Sejak</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nama</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Bergabung Sejak</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-100">
                             <?php if (empty($pekerja_list)): ?>
                                 <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                        Belum ada data pekerja.
+                                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 bg-gray-50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-users-slash text-4xl text-gray-300 mb-2"></i>
+                                            <p>Belum ada data pekerja.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($pekerja_list as $pekerja): ?>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?php echo htmlspecialchars($pekerja['nama']); ?>
+                                <tr class="hover:bg-blue-50 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 rounded-full bg-secondary text-primary flex items-center justify-center text-sm font-bold mr-3">
+                                                <?php echo strtoupper(substr($pekerja['nama'], 0, 1)); ?>
+                                            </div>
+                                            <div class="text-sm font-bold text-primary">
+                                                <?php echo htmlspecialchars($pekerja['nama']); ?>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                         <?php echo htmlspecialchars($pekerja['email']); ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        <?php echo date('d F Y', strtotime($pekerja['created_at'])); ?>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span class="px-2 py-1 rounded bg-secondary text-gray-600 text-xs font-medium">
+                                            <?php echo date('d M Y', strtotime($pekerja['created_at'])); ?>
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <button class="btn-edit text-blue-600 hover:text-blue-900"
+                                        <button class="btn-edit text-primary hover:text-accent transition duration-200"
                                                 data-id="<?php echo $pekerja['id']; ?>"
                                                 data-nama="<?php echo htmlspecialchars($pekerja['nama']); ?>"
-                                                data-email="<?php echo htmlspecialchars($pekerja['email']); ?>">
-                                            <i class="fas fa-edit"></i> Edit
+                                                data-email="<?php echo htmlspecialchars($pekerja['email']); ?>"
+                                                title="Edit">
+                                            <i class="fas fa-edit fa-lg"></i>
                                         </button>
-                                        <button class="btn-hapus text-red-600 hover:text-red-900"
+                                        <button class="btn-hapus text-gray-400 hover:text-red-600 transition duration-200"
                                                 data-id="<?php echo $pekerja['id']; ?>"
-                                                data-nama="<?php echo htmlspecialchars($pekerja['nama']); ?>">
-                                            <i class="fas fa-trash"></i> Hapus
+                                                data-nama="<?php echo htmlspecialchars($pekerja['nama']); ?>"
+                                                title="Hapus">
+                                            <i class="fas fa-trash-alt fa-lg"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -205,59 +219,64 @@ $db->close();
     </main>
 </div>
 
-<div id="tambahModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800">Tambah Pekerja Baru</h3>
-            <button id="btnBatalTambah" class="text-gray-400 hover:text-gray-600">&times;</button>
+<div id="tambahModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-100">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-primary">Tambah Pekerja Baru</h3>
+            <button id="btnBatalTambah" class="text-gray-400 hover:text-red-500 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
         <form action="manajemen_pekerja.php" method="POST">
             <input type="hidden" name="action" value="tambah">
             <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                <input type="text" id="nama" name="nama" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <label for="nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                <input type="text" id="nama" name="nama" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="Contoh: Budi Santoso">
             </div>
             <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <input type="email" id="email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="email@contoh.com">
             </div>
             <div class="mb-6">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                <input type="password" id="password" name="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="********">
             </div>
-            <div class="flex justify-end space-x-4">
-                <button type="button" id="btnBatalTambahModal" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="btnBatalTambahModal" class="px-5 py-2.5 bg-secondary text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition">Batal</button>
+                <button type="submit" class="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-blue-900 shadow-md transition">Simpan</button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800">Edit Data Pekerja</h3>
-            <button id="btnBatalEdit" class="text-gray-400 hover:text-gray-600">&times;</button>
+<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-100">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-primary">Edit Data Pekerja</h3>
+            <button id="btnBatalEdit" class="text-gray-400 hover:text-red-500 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
         <form action="manajemen_pekerja.php" method="POST">
             <input type="hidden" name="action" value="edit">
             <input type="hidden" id="modal_edit_id" name="id_pekerja">
             
             <div class="mb-4">
-                <label for="modal_edit_nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                <input type="text" id="modal_edit_nama" name="nama" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <label for="modal_edit_nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                <input type="text" id="modal_edit_nama" name="nama" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required>
             </div>
             <div class="mb-4">
-                <label for="modal_edit_email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" id="modal_edit_email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <label for="modal_edit_email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <input type="email" id="modal_edit_email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required>
             </div>
             <div class="mb-6">
-                <label for="modal_edit_password" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
-                <input type="password" id="modal_edit_password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Kosongkan jika tidak diubah">
+                <label for="modal_edit_password" class="block text-sm font-semibold text-gray-700 mb-2">Password Baru</label>
+                <input type="password" id="modal_edit_password" name="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" placeholder="Kosongkan jika tidak diubah">
+                <p class="text-xs text-gray-400 mt-1">Biarkan kosong jika tidak ingin mengganti password.</p>
             </div>
-            <div class="flex justify-end space-x-4">
-                <button type="button" id="btnBatalEditModal" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan Perubahan</button>
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="btnBatalEditModal" class="px-5 py-2.5 bg-secondary text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition">Batal</button>
+                <button type="submit" class="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-blue-900 shadow-md transition">Simpan Perubahan</button>
             </div>
         </form>
     </div>
@@ -274,7 +293,7 @@ $(document).ready(function() {
             title: 'Berhasil!',
             text: '<?php echo $_SESSION['success_message']; ?>',
             icon: 'success',
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#0B1F4F', // Primary Color
             confirmButtonText: 'OK'
         });
         <?php unset($_SESSION['success_message']); ?>
@@ -285,7 +304,7 @@ $(document).ready(function() {
             title: 'Gagal!',
             text: '<?php echo $_SESSION['error_message']; ?>',
             icon: 'error',
-            confirmButtonColor: '#d33',
+            confirmButtonColor: '#EF4444', // Red Color
             confirmButtonText: 'OK'
         });
         <?php unset($_SESSION['error_message']); ?>
@@ -333,8 +352,8 @@ $(document).ready(function() {
             text: "Anda akan menghapus data pekerja '" + nama + "'. Aksi ini tidak bisa dibatalkan!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#EF4444', // Red Color
+            cancelButtonColor: '#0B1F4F', // Primary Color
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal'
         }).then((result) => {

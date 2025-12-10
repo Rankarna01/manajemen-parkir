@@ -16,25 +16,39 @@
     
     <script>
         tailwind.config = {
-          theme: {
-            extend: {
-              fontFamily: {
-                sans: ['Poppins', 'sans-serif'],
-              },
+            theme: {
+                extend: {
+                    colors: {
+                        // Palet Warna Kustom VentriaPark
+                        'primary': '#0B1F4F',   // Navy Blue (Dominan)
+                        'secondary': '#EBEFF3', // Light Gray (Background Halaman)
+                        'accent': '#F9A825',    // Bright Gold (Aksen/Tombol)
+                        'success': '#10B981',   // Emerald Green
+                        'danger': '#EF4444',    // Deep Red
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
             }
-          }
         }
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        body {
-            font-family: 'Poppins', sans-serif; /* Pastikan ini Poppins */
+        /* Sembunyikan scrollbar (Opsional, untuk konsistensi) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800"> ```
-
+<body class="bg-secondary font-sans text-gray-800 antialiased">

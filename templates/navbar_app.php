@@ -3,42 +3,30 @@
 $user_nama = $_SESSION['nama'] ?? 'Pengguna';
 ?>
 
-<!-- Header Navbar -->
-<header class="bg-gradient-to-r from-blue-800 via-blue-700 to-blue-600 shadow-md px-6 py-3 flex justify-between items-center text-white relative z-20">
+<header class="bg-primary shadow-lg border-b border-blue-900 px-6 py-3 flex justify-between items-center text-white relative z-20">
 
-    <!-- Kiri: Judul atau ikon sistem -->
     <div class="flex items-center space-x-3">
-        <div class="bg-blue-500 p-2 rounded-lg shadow-md">
-            <i class="fas fa-parking text-xl text-white"></i>
-        </div>
-        <h1 class="text-lg md:text-xl font-semibold tracking-wide">Sistem Manajemen Parkir</h1>
     </div>
 
-    <!-- Tengah: Jam Realtime -->
-    <div id="realtimeClock" class="text-center font-medium hidden sm:block"></div>
+    <div id="realtimeClock" class="text-center font-medium hidden sm:block text-gray-200 bg-blue-900/50 px-4 py-1.5 rounded-full border border-blue-800/50 shadow-inner text-sm"></div>
 
-    <!-- Kanan: Profil pengguna + tombol logout -->
     <div class="flex items-center space-x-4">
-        <!-- Sapaan -->
-        <span class="hidden md:inline text-sm text-blue-100">
-            Halo, <span class="font-semibold text-white"><?php echo htmlspecialchars($user_nama); ?></span>
+        <span class="hidden md:inline text-sm text-gray-300">
+            Halo, <span class="font-bold text-white"><?php echo htmlspecialchars($user_nama); ?></span>
         </span>
 
-        <!-- Avatar -->
-        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-inner">
+        <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-primary font-bold text-sm shadow-lg ring-2 ring-primary/50">
             <?php echo strtoupper(substr($user_nama, 0, 1)); // Inisial nama ?>
         </div>
 
-        <!-- Tombol Logout -->
         <a href="../../logout.php" 
-           class="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-200 shadow-md">
+           class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-200 shadow-md hover:shadow-lg border border-red-500">
             <i class="fas fa-sign-out-alt"></i>
             <span class="hidden sm:inline">Logout</span>
         </a>
     </div>
 </header>
 
-<!-- Script Realtime Clock -->
 <script>
 function updateRealtimeClock() {
     const clockElement = document.getElementById('realtimeClock');
@@ -46,7 +34,7 @@ function updateRealtimeClock() {
 
     const now = new Date();
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
     const dayName = days[now.getDay()];
     const date = now.getDate();
@@ -60,9 +48,9 @@ function updateRealtimeClock() {
     // Format tampilan
     clockElement.innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            <span class="font-semibold">${dayName}, ${date} ${monthName} ${year}</span>
-            <span class="hidden sm:inline">|</span>
-            <span class="text-base font-semibold">${hours}:${minutes}:${seconds}</span>
+            <span class="font-semibold text-accent">${dayName}, ${date} ${monthName} ${year}</span>
+            <span class="hidden sm:inline text-gray-400">|</span>
+            <span class="text-base font-bold tracking-widest">${hours}:${minutes}:${seconds}</span>
         </div>`;
 }
 

@@ -212,13 +212,11 @@ $db->close();
     
     <?php require_once '../../templates/navbar_app.php'; // Navbar ?>
 
-    <!-- background putih sesuai permintaan -->
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-white p-6">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-secondary p-6">
         <div class="container mx-auto max-w-7xl">
 
-            <!-- Header Section -->
             <div class="mb-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
+                <h2 class="text-2xl md:text-3xl font-bold text-primary tracking-tight">
                     Laporan Keuangan
                 </h2>
                 <p class="text-gray-500">
@@ -226,49 +224,45 @@ $db->close();
                 </p>
             </div>
 
-            <!-- Filter Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                <!-- Quick Filter -->
+            <div class="bg-white rounded-2xl shadow-lg border-l-4 border-accent p-6 mb-6">
                 <div class="mb-5 pb-5 border-b border-gray-100">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-base font-semibold text-gray-800">Filter Cepat</h3>
-                        
+                        <h3 class="text-base font-semibold text-primary">Filter Cepat</h3>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
                         <a href="?filter_type=harian"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition duration-200
                                   <?php echo ($filter_type == 'harian')
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
+                                    ? 'bg-primary text-white shadow-md transform scale-105'
+                                    : 'bg-secondary text-gray-600 hover:bg-gray-200 hover:text-primary'; ?>">
                             <i class="fas fa-calendar-day"></i> Hari Ini
                         </a>
                         <a href="?filter_type=mingguan"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition duration-200
                                   <?php echo ($filter_type == 'mingguan')
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
+                                    ? 'bg-primary text-white shadow-md transform scale-105'
+                                    : 'bg-secondary text-gray-600 hover:bg-gray-200 hover:text-primary'; ?>">
                             <i class="fas fa-calendar-week"></i> Minggu Ini
                         </a>
                         <a href="?filter_type=bulanan"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition duration-200
                                   <?php echo ($filter_type == 'bulanan')
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
+                                    ? 'bg-primary text-white shadow-md transform scale-105'
+                                    : 'bg-secondary text-gray-600 hover:bg-gray-200 hover:text-primary'; ?>">
                             <i class="fas fa-calendar-alt"></i> Bulan Ini
                         </a>
                         <a href="?filter_type=tahunan"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition duration-200
                                   <?php echo ($filter_type == 'tahunan')
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
+                                    ? 'bg-primary text-white shadow-md transform scale-105'
+                                    : 'bg-secondary text-gray-600 hover:bg-gray-200 hover:text-primary'; ?>">
                             <i class="fas fa-calendar"></i> Tahun Ini
                         </a>
                     </div>
                 </div>
 
-                <!-- Custom Filter -->
-                <h3 class="text-base font-semibold text-gray-800 mb-3">Filter Kustom</h3>
+                <h3 class="text-base font-semibold text-primary mb-3">Filter Kustom</h3>
                 <form action="laporan.php" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <input type="hidden" name="filter_type" value="custom">
 
@@ -277,7 +271,7 @@ $db->close();
                         <div class="relative">
                             <i class="fas fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="datetime-local" id="start_datetime" name="start_datetime"
-                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition"
                                    value="<?php echo $start_datetime_val; ?>">
                         </div>
                     </div>
@@ -287,71 +281,78 @@ $db->close();
                         <div class="relative">
                             <i class="fas fa-hourglass-end absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="datetime-local" id="end_datetime" name="end_datetime"
-                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition"
                                    value="<?php echo $end_datetime_val; ?>">
                         </div>
                     </div>
 
                     <div class="flex space-x-2">
                         <button type="submit"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center shadow-sm transition">
-                            <i class="fas fa-filter mr-2"></i> Filter Kustom
+                                class="w-full bg-accent hover:bg-yellow-600 text-primary font-bold py-2.5 px-4 rounded-xl flex items-center justify-center shadow-md transition duration-200">
+                            <i class="fas fa-filter mr-2"></i> Terapkan Filter
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Summary Card -->
-            <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-6 mb-6">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 mb-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div class="flex items-start gap-4">
-                        <div class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow">
-                            <i class="fas fa-wallet"></i>
+                        <div class="bg-accent text-primary w-14 h-14 rounded-full flex items-center justify-center shadow-md">
+                            <i class="fas fa-wallet text-2xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-blue-700">Total Pendapatan (<?php echo $laporan_title; ?>)</p>
-                            <p class="text-4xl font-extrabold text-gray-900 leading-tight">
+                            <p class="text-sm font-bold uppercase tracking-wider text-gray-500">Total Pendapatan (<?php echo $laporan_title; ?>)</p>
+                            <p class="text-4xl font-extrabold text-primary leading-tight mt-1">
                                 Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?>
                             </p>
-                            <p class="text-sm text-gray-500 mt-1">
-                                Periode <?php echo date('d/m/Y H:i', strtotime($sql_start)); ?> s/d <?php echo date('d/m/Y H:i', strtotime($sql_end)); ?>
+                            <p class="text-sm text-gray-500 mt-1 flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                Periode: <?php echo date('d/m/Y H:i', strtotime($sql_start)); ?> s/d <?php echo date('d/m/Y H:i', strtotime($sql_end)); ?>
                             </p>
                         </div>
                     </div>
                     <div>
                         <a href="laporan.php?download_pdf=1&filter_type=<?php echo $filter_type; ?>&start_datetime=<?php echo urlencode($start_datetime_val); ?>&end_datetime=<?php echo urlencode($end_datetime_val); ?>"
-                           class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-xl shadow-sm transition">
-                            <i class="fas fa-file-pdf"></i> Download Laporan Ini
+                           class="inline-flex items-center gap-2 bg-success hover:bg-emerald-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition transform hover:-translate-y-1">
+                            <i class="fas fa-file-pdf fa-lg"></i> <span>Download PDF</span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Table Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-                <div class="p-6 pb-3">
-                    <h3 class="text-lg font-semibold text-gray-900">Riwayat Transaksi (Kendaraan Keluar)</h3>
-                    <p class="text-sm text-gray-500">Semua transaksi pada periode yang dipilih.</p>
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6 pb-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <div>
+                        <h3 class="text-lg font-bold text-primary">Riwayat Transaksi</h3>
+                        <p class="text-sm text-gray-500">Daftar kendaraan keluar pada periode ini.</p>
+                    </div>
+                    <div class="text-accent">
+                        <i class="fas fa-list-alt text-2xl"></i>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
-                        <thead class="bg-gray-50 sticky top-0 z-10">
+                        <thead class="bg-primary text-white sticky top-0 z-10">
                             <tr class="text-left">
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Kode Tiket</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Plat Nomor</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Waktu Masuk</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Waktu Keluar</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Durasi</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Biaya</th>
-                                <th class="px-6 py-3 font-semibold text-gray-600 uppercase">Petugas</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Kode Tiket</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Plat Nomor</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Masuk</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Keluar</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Durasi</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Biaya</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Petugas</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <?php if (empty($transaksi_list)): ?>
                                 <tr>
-                                    <td colspan="7" class="px-6 py-6 text-center text-gray-500">
-                                        Tidak ada data transaksi pada periode ini.
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 bg-gray-50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
+                                            <p>Tidak ada data transaksi pada periode ini.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php else: ?>
@@ -360,16 +361,23 @@ $db->close();
                                     $waktu_masuk_dt = new DateTime($trx['waktu_masuk']);
                                     $waktu_keluar_dt = new DateTime($trx['waktu_keluar']);
                                     $durasi = $waktu_keluar_dt->diff($waktu_masuk_dt);
-                                    $durasi_format = $durasi->d . 'h, ' . $durasi->h . 'j, ' . $durasi->i . 'm';
+                                    $durasi_format = $durasi->d . 'h ' . $durasi->h . 'j ' . $durasi->i . 'm';
                                     ?>
-                                    <tr class="hover:bg-gray-50/60 transition">
-                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"><?php echo htmlspecialchars($trx['kode_barcode']); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900"><?php echo htmlspecialchars($trx['plat_nomor']); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"><?php echo date('d/m/y H:i', strtotime($trx['waktu_masuk'])); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"><?php echo date('d/m/y H:i', strtotime($trx['waktu_keluar'])); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"><?php echo $durasi_format; ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Rp <?php echo number_format($trx['biaya'], 0, ',', '.'); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"><?php echo htmlspecialchars($trx['nama_petugas']); ?></td>
+                                    <tr class="hover:bg-blue-50 transition duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700 font-mono text-xs"><?php echo htmlspecialchars($trx['kode_barcode']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-primary bg-gray-50/50"><?php echo htmlspecialchars($trx['plat_nomor']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600"><?php echo date('d/m/y H:i', strtotime($trx['waktu_masuk'])); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600"><?php echo date('d/m/y H:i', strtotime($trx['waktu_keluar'])); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                                            <span class="px-2 py-1 rounded bg-secondary text-primary text-xs font-medium">
+                                                <?php echo $durasi_format; ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-accent">Rp <?php echo number_format($trx['biaya'], 0, ',', '.'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-xs">
+                                            <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                            <?php echo htmlspecialchars($trx['nama_petugas']); ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -377,9 +385,9 @@ $db->close();
                     </table>
                 </div>
 
-                <!-- Footer table (optional info) -->
-                <div class="px-6 py-4 border-t border-gray-100 text-xs text-gray-500">
-                    *Data ditampilkan sesuai filter yang dipilih.
+                <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex justify-between items-center">
+                    <span>*Data ditampilkan sesuai filter yang dipilih.</span>
+                    <span>Total Baris: <?php echo count($transaksi_list); ?></span>
                 </div>
             </div>
 

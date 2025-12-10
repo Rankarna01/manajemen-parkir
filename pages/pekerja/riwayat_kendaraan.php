@@ -90,96 +90,139 @@ function formatDurasi($waktu_masuk_dt, $waktu_referensi_dt) {
     
     <?php require_once '../../templates/navbar_app.php'; // Navbar ?>
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-        
-        <div class="container mx-auto">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-secondary p-6">
+        <div class="container mx-auto max-w-7xl">
+            
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-800">Riwayat Kendaraan</h2>
-                    <p class="text-gray-600">Menampilkan semua kendaraan yang masuk dan keluar.</p>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary tracking-tight">Riwayat Kendaraan</h2>
+                    <p class="text-gray-500">Menampilkan semua kendaraan yang masuk dan keluar.</p>
                 </div>
+
                 <form action="riwayat_kendaraan.php" method="GET" class="w-full md:w-1/3">
-                    <div class="relative">
-                        <input type="text" name="search"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Cari Plat Nomor / Kode Tiket..."
-                               value="<?php echo htmlspecialchars($search_term); ?>">
-                        <button type="submit" class="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-blue-600">
-                            <i class="fas fa-search"></i>
-                        </button>
+                    <div class="relative group">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition duration-200"></i>
+                        <input
+                            type="text"
+                            name="search"
+                            class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition text-gray-800 placeholder-gray-400 shadow-sm"
+                            placeholder="Cari Plat Nomor / Kode Tiket..."
+                            value="<?php echo htmlspecialchars($search_term); ?>"
+                        />
+                        <?php if (!empty($search_term)): ?>
+                        <a href="riwayat_kendaraan.php"
+                           class="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-2 py-1 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 transition">
+                           <i class="fas fa-times"></i> Reset
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6 pb-4 flex items-center justify-between bg-white border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-secondary p-2 rounded-lg text-primary">
+                            <i class="fas fa-history text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-primary">Daftar Transaksi</h3>
+                            <p class="text-xs text-gray-500">Log aktivitas parkir real-time.</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex items-center gap-2 text-xs">
+                        <span class="px-3 py-1.5 rounded-full bg-secondary text-primary font-semibold border border-gray-200">
+                            Total: <?php echo !empty($transaksi_list) ? count($transaksi_list) : 0; ?> Data
+                        </span>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plat Nomor</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Tiket</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu Masuk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu Keluar</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durasi</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Biaya</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-primary text-white sticky top-0 z-10">
+                            <tr class="text-left">
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Plat Nomor</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Kode Tiket</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Status</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Waktu Masuk</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Waktu Keluar</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Durasi</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Biaya</th>
+                                <th class="px-6 py-4 font-semibold uppercase tracking-wider text-xs text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+
+                        <tbody class="divide-y divide-gray-100">
                             <?php if (empty($transaksi_list)): ?>
                                 <tr>
-                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                        <?php echo !empty($search_term) ? 'Data tidak ditemukan.' : 'Belum ada data transaksi.'; ?>
+                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500 bg-gray-50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-3"></i>
+                                            <p><?php echo !empty($search_term) ? 'Data tidak ditemukan untuk pencarian tersebut.' : 'Belum ada data transaksi.'; ?></p>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($transaksi_list as $trx): ?>
                                     <?php
-                                    // --- Logika Perhitungan Durasi & Biaya ---
+                                    // --- Logika Perhitungan Durasi & Biaya (tetap) ---
                                     $waktu_masuk_dt = new DateTime($trx['waktu_masuk']);
                                     $durasi_format = '';
                                     $biaya_format = 'Rp -';
                                     
                                     if ($trx['status'] == 'masuk') {
-                                        // Jika masih parkir, hitung durasi sampai SEKARANG
-                                        $waktu_referensi_dt = new DateTime(); // Waktu sekarang
+                                        $waktu_referensi_dt = new DateTime(); // sekarang
                                         $durasi_format = formatDurasi($waktu_masuk_dt, $waktu_referensi_dt);
                                     } else {
-                                        // Jika sudah keluar, hitung durasi berdasarkan data
                                         $waktu_referensi_dt = new DateTime($trx['waktu_keluar']);
                                         $durasi_format = formatDurasi($waktu_masuk_dt, $waktu_referensi_dt);
                                         $biaya_format = 'Rp ' . number_format($trx['biaya'], 0, ',', '.');
                                     }
                                     ?>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($trx['plat_nomor']); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($trx['kode_barcode']); ?></td>
+                                    <tr class="hover:bg-blue-50 transition duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-primary bg-gray-50/50">
+                                            <?php echo htmlspecialchars($trx['plat_nomor']); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-mono text-xs">
+                                            <?php echo htmlspecialchars($trx['kode_barcode']); ?>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <?php if ($trx['status'] == 'masuk'): ?>
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Masuk
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-primary border border-blue-200">
+                                                    <i class="fas fa-parking mr-1.5 mt-0.5"></i> Parkir
                                                 </span>
                                             <?php else: ?>
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Keluar
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                                                    <i class="fas fa-check-circle mr-1.5 mt-0.5"></i> Selesai
                                                 </span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo date('d/m/y H:i', strtotime($trx['waktu_masuk'])); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-xs">
+                                            <?php echo date('d/m/y H:i', strtotime($trx['waktu_masuk'])); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-xs">
                                             <?php echo ($trx['waktu_keluar']) ? date('d/m/y H:i', strtotime($trx['waktu_keluar'])) : '-'; ?>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo $durasi_format; ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900"><?php echo $biaya_format; ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-xs">
+                                            <span class="bg-secondary px-2 py-1 rounded text-primary font-medium">
+                                                <?php echo $durasi_format; ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-accent">
+                                            <?php echo $biaya_format; ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right">
                                             <?php if ($trx['status'] == 'masuk'): ?>
-                                                <a href="../../cetak_tiket.php?id=<?php echo $trx['id']; ?>" target="_blank" class="text-blue-600 hover:text-blue-900" title="Cetak Tiket Masuk">
-                                                    <i class="fas fa-ticket-alt"></i> Cetak Tiket
+                                                <a href="../../cetak_tiket.php?id=<?php echo $trx['id']; ?>" target="_blank"
+                                                   class="inline-flex items-center gap-2 text-white bg-primary hover:bg-blue-900 px-3 py-1.5 rounded-lg text-xs font-medium shadow-md transition transform hover:-translate-y-0.5"
+                                                   title="Cetak Tiket Masuk">
+                                                    <i class="fas fa-ticket-alt"></i> Tiket
                                                 </a>
                                             <?php else: ?>
-                                                <a href="../../cetak_struk.php?id=<?php echo $trx['id']; ?>" target="_blank" class="text-indigo-600 hover:text-indigo-900" title="Cetak Struk Pembayaran">
-                                                    <i class="fas fa-receipt"></i> Cetak Struk
+                                                <a href="../../cetak_struk.php?id=<?php echo $trx['id']; ?>" target="_blank"
+                                                   class="inline-flex items-center gap-2 text-primary bg-accent hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition transform hover:-translate-y-0.5"
+                                                   title="Cetak Struk Pembayaran">
+                                                    <i class="fas fa-receipt"></i> Struk
                                                 </a>
                                             <?php endif; ?>
                                         </td>
@@ -191,25 +234,35 @@ function formatDurasi($waktu_masuk_dt, $waktu_referensi_dt) {
                 </div>
 
                 <?php if ($total_pages > 1): ?>
-                    <div class="mt-6 flex justify-between items-center">
-                        <span class="text-sm text-gray-700">
-                            Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?>
+                    <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gray-50">
+                        <span class="text-sm text-gray-600">
+                            Halaman <span class="font-bold text-primary"><?php echo $page; ?></span> dari <?php echo $total_pages; ?>
                         </span>
-                        <div class="flex space-x-2">
+                        <div class="flex gap-2">
                             <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search_term); ?>" class="px-4 py-2 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600">
+                                <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search_term); ?>"
+                                   class="px-4 py-2 text-sm text-primary bg-white hover:bg-secondary border border-gray-200 rounded-xl transition shadow-sm font-medium">
                                     &laquo; Sebelumnya
                                 </a>
+                            <?php else: ?>
+                                <span class="px-4 py-2 text-sm text-gray-400 bg-gray-100 border border-gray-200 rounded-xl cursor-not-allowed">
+                                    &laquo; Sebelumnya
+                                </span>
                             <?php endif; ?>
+
                             <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_term); ?>" class="px-4 py-2 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600">
+                                <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_term); ?>"
+                                   class="px-4 py-2 text-sm text-white bg-primary hover:bg-blue-900 border border-transparent rounded-xl transition shadow-md font-medium">
                                     Selanjutnya &raquo;
                                 </a>
+                            <?php else: ?>
+                                <span class="px-4 py-2 text-sm text-gray-400 bg-gray-100 border border-gray-200 rounded-xl cursor-not-allowed">
+                                    Selanjutnya &raquo;
+                                </span>
                             <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>
-                
             </div>
         </div>
     </main>
