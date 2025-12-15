@@ -3,17 +3,12 @@
 ?>
 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
     <div class="bg-gray-800 text-white px-4 py-2 font-semibold flex justify-between items-center">
-        <span><i class="fas fa-video mr-2"></i> CCTV Gerbang Masuk</span>
+        <span><i class="fas fa-video mr-2"></i> CCTV Gerbang Masuk (MOTOR)</span>
         <span class="text-xs bg-red-500 px-2 py-1 rounded animate-pulse">LIVE</span>
     </div>
 
     <div class="p-4 bg-black h-48 flex items-center justify-center relative">
-        
-        <div class="text-center">
-            <i class="fas fa-video-slash text-gray-600 text-4xl mb-2"></i>
-            <p class="text-gray-500 text-sm">Video Stream Masuk...</p>
-        </div>
-
+        <p class="text-gray-500">Video Stream Masuk...</p>
     </div>
     
     <div class="p-4 border-t border-gray-200">
@@ -24,11 +19,11 @@
             <button type="button" id="btnAmbilTiketOtomatis" 
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-105 flex items-center justify-center gap-2">
                 <i class="fas fa-print fa-lg"></i>
-                <span>TEKAN UNTUK AMBIL TIKET</span>
+                <span>AMBIL TIKET MOTOR</span>
             </button>
             
             <p class="text-xs text-blue-600 mt-2">
-                <i class="fas fa-info-circle"></i> Rekam Data > Cetak Tiket > Buka Palang
+                <i class="fas fa-info-circle"></i> Sistem akan merekam data, mencetak tiket, dan membuka palang otomatis.
             </p>
         </div>
 
@@ -48,19 +43,9 @@
 
             <div class="mb-4">
                 <label for="jenis_kendaraan_manual" class="block text-sm font-medium text-gray-700">Jenis Kendaraan</label>
-                <select id="jenis_kendaraan_manual" name="jenis_kendaraan"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
-                    <option value="">Pilih Jenis</option>
-                    <?php if (!empty($tarif_options)): ?>
-                        <?php foreach ($tarif_options as $tarif): ?>
-                            <option value="<?php echo $tarif['jenis_kendaraan']; ?>">
-                                <?php echo ucfirst($tarif['jenis_kendaraan']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="" disabled>Error: Tarif tidak dimuat</option>
-                    <?php endif; ?>
-                </select>
+                <input type="text" name="jenis_kendaraan_display" value="Motor" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed font-bold" readonly>
+                <input type="hidden" name="jenis_kendaraan" value="motor">
             </div>
 
             <button type="submit" id="btnSubmitManual" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center text-sm shadow-md">

@@ -1,10 +1,10 @@
 <?php
 //=========================================
-// AJAX HANDLER UNTUK POS PARKING (BARU)
+// AJAX HANDLER UNTUK POS PARKING (POS MOTOR)
 //=========================================
 
 header('Content-Type: application/json');
-require_once '../core/init.php'; // Path ../ karena file ini di /api/
+require_once '../core/init.php'; 
 
 $response = [
     'status' => 'error',
@@ -13,98 +13,95 @@ $response = [
 
 if (!isset($_SESSION['user_id'])) {
     $response['message'] = 'Sesi Anda telah habis. Silakan login kembali.';
-    echo json_encode($response);
-    exit;
+    echo json_encode($response); exit;
 }
 
-// Cek aksi apa yang diminta oleh AJAX
 if (isset($_POST['action'])) {
     
     //=====================================
-    // AKSI: KENDARAAN MASUK MANUAL (dari CCTV box)
+    // AKSI: KENDARAAN MASUK MANUAL
     //=====================================
     if ($_POST['action'] == 'kendaraan_masuk_manual') {
         $plat_nomor = strtoupper(trim($_POST['plat_nomor']));
-        $jenis_kendaraan = $_POST['jenis_kendaraan'];
+        // Ambil jenis kendaraan dari POST, default 'motor'
+        $jenis_kendaraan = $_POST['jenis_kendaraan'] ?? 'motor';
         $id_petugas_masuk = $_SESSION['user_id'];
         
-        if (empty($plat_nomor) || empty($jenis_kendaraan)) {
-            $response['message'] = 'Plat nomor dan jenis kendaraan wajib diisi.';
-            echo json_encode($response); exit;
+        if (empty($plat_nomor)) {
+            $response['message'] = 'Plat nomor wajib diisi.'; echo json_encode($response); exit;
         }
 
-        // Cek duplikasi (jika masih 'masuk')
-        $stmt_cek = $db->prepare("SELECT t.id FROM transaksi_parkir t 
-                                JOIN kendaraan k ON t.id_kendaraan = k.id 
-                                WHERE k.plat_nomor = ? AND t.status = 'masuk'");
+        // Cek duplikasi
+        $stmt_cek = $db->prepare("SELECT t.id FROM transaksi_parkir t JOIN kendaraan k ON t.id_kendaraan = k.id WHERE k.plat_nomor = ? AND t.status = 'masuk'");
         $stmt_cek->bind_param("s", $plat_nomor); $stmt_cek->execute();
-        $result_cek = $stmt_cek->get_result();
-        if ($result_cek->num_rows > 0) {
-            $response['message'] = "Gagal! Kendaraan '$plat_nomor' sudah tercatat masuk.";
-            echo json_encode($response); exit;
+        if ($stmt_cek->get_result()->num_rows > 0) {
+            $response['message'] = "Gagal! Kendaraan '$plat_nomor' sudah tercatat masuk."; echo json_encode($response); exit;
         }
         $stmt_cek->close();
 
-        // Cari atau Buat data di tabel 'kendaraan' (master)
+        // Cari atau Buat data kendaraan
         $id_kendaraan = null;
-        $stmt_find_kendaraan = $db->prepare("SELECT id FROM kendaraan WHERE plat_nomor = ?");
-        $stmt_find_kendaraan->bind_param("s", $plat_nomor); $stmt_find_kendaraan->execute();
-        $result_kendaraan = $stmt_find_kendaraan->get_result();
-        if ($result_kendaraan->num_rows > 0) {
-            $id_kendaraan = $result_kendaraan->fetch_assoc()['id'];
-        } else {
-            $stmt_insert_kendaraan = $db->prepare("INSERT INTO kendaraan (plat_nomor, jenis) VALUES (?, ?)");
-            $stmt_insert_kendaraan->bind_param("ss", $plat_nomor, $jenis_kendaraan);
-            $stmt_insert_kendaraan->execute();
-            $id_kendaraan = $stmt_insert_kendaraan->insert_id;
-            $stmt_insert_kendaraan->close();
-        }
-        $stmt_find_kendaraan->close();
-
-        // Buat data transaksi
-        $waktu_masuk = date('Y-m-d H:i:s');
-        $kode_barcode_prefix = 'PK-' . date('Ymd') . '-'; 
-
-        $stmt_insert_transaksi = $db->prepare("INSERT INTO transaksi_parkir (id_kendaraan, kode_barcode, waktu_masuk, status, id_petugas_masuk) VALUES (?, '', ?, 'masuk', ?)");
-        $stmt_insert_transaksi->bind_param("isi", $id_kendaraan, $waktu_masuk, $id_petugas_masuk);
+        $stmt_find = $db->prepare("SELECT id FROM kendaraan WHERE plat_nomor = ?");
+        $stmt_find->bind_param("s", $plat_nomor); $stmt_find->execute();
+        $res_kend = $stmt_find->get_result();
         
-        if ($stmt_insert_transaksi->execute()) {
-            $transaksi_id_baru = $stmt_insert_transaksi->insert_id;
-            $kode_barcode_final = $kode_barcode_prefix . str_pad($transaksi_id_baru, 5, '0', STR_PAD_LEFT);
-            $db->query("UPDATE transaksi_parkir SET kode_barcode = '$kode_barcode_final' WHERE id = $transaksi_id_baru");
+        if ($res_kend->num_rows > 0) {
+            $id_kendaraan = $res_kend->fetch_assoc()['id'];
+        } else {
+            $stmt_ins = $db->prepare("INSERT INTO kendaraan (plat_nomor, jenis) VALUES (?, ?)");
+            $stmt_ins->bind_param("ss", $plat_nomor, $jenis_kendaraan);
+            $stmt_ins->execute();
+            $id_kendaraan = $stmt_ins->insert_id;
+            $stmt_ins->close();
+        }
+        $stmt_find->close();
+
+        // Simpan Transaksi
+        $waktu_masuk = date('Y-m-d H:i:s');
+        $kode_prefix = 'PK-MTR-' . date('Ymd') . '-'; // Prefix MTR untuk Motor
+
+        $stmt_trx = $db->prepare("INSERT INTO transaksi_parkir (id_kendaraan, kode_barcode, waktu_masuk, status, id_petugas_masuk) VALUES (?, '', ?, 'masuk', ?)");
+        $stmt_trx->bind_param("isi", $id_kendaraan, $waktu_masuk, $id_petugas_masuk);
+        
+        if ($stmt_trx->execute()) {
+            $trx_id = $stmt_trx->insert_id;
+            $barcode_final = $kode_prefix . str_pad($trx_id, 5, '0', STR_PAD_LEFT);
+            $db->query("UPDATE transaksi_parkir SET kode_barcode = '$barcode_final' WHERE id = $trx_id");
 
             $response['status'] = 'success';
-            $response['message'] = 'Kendaraan berhasil dicatat.';
+            $response['message'] = 'Motor berhasil dicatat.';
             $response['data'] = [
-                'transaksi_id' => $transaksi_id_baru,
-                'kode_barcode' => $kode_barcode_final,
+                'transaksi_id' => $trx_id,
+                'kode_barcode' => $barcode_final,
                 'plat_nomor' => $plat_nomor,
             ];
         } else {
             $response['message'] = 'Gagal menyimpan data transaksi.';
         }
-        $stmt_insert_transaksi->close();
+        $stmt_trx->close();
     }
+    
     //=====================================
-    // AKSI BARU: AMBIL TIKET OTOMATIS (TOMBOL DISPENSER)
+    // AKSI: AMBIL TIKET OTOMATIS (MANLESS)
     //=====================================
     elseif ($_POST['action'] == 'ambil_tiket_otomatis') {
         $id_petugas = $_SESSION['user_id'];
         
-        // Generate Plat Sementara (Format: AUTO-[JAM]-[ACAK])
-        $plat_sementara = "ENTRY-" . date('Hi') . "-" . rand(10,99);
-        $jenis_default = "mobil"; // Default jenis
+        // Ambil jenis kendaraan dari POST, default 'motor'
+        $jenis_kendaraan = $_POST['jenis_kendaraan'] ?? 'motor';
 
-        // 1. Simpan ke Master Kendaraan (Sifatnya sementara)
+        $plat_sementara = "MTR-" . date('Hi') . "-" . rand(10,99);
+
+        // Simpan Kendaraan Sementara
         $stmt_kend = $db->prepare("INSERT INTO kendaraan (plat_nomor, jenis) VALUES (?, ?)");
-        $stmt_kend->bind_param("ss", $plat_sementara, $jenis_default);
+        $stmt_kend->bind_param("ss", $plat_sementara, $jenis_kendaraan);
         $stmt_kend->execute();
         $id_kendaraan = $stmt_kend->insert_id;
         $stmt_kend->close();
 
-        // 2. Simpan Transaksi
+        // Simpan Transaksi
         $waktu_masuk = date('Y-m-d H:i:s');
-        $kode_prefix = 'PK-' . date('Ymd') . '-';
+        $kode_prefix = 'PK-MTR-' . date('Ymd') . '-';
         
         $stmt_trx = $db->prepare("INSERT INTO transaksi_parkir (id_kendaraan, kode_barcode, waktu_masuk, status, id_petugas_masuk) VALUES (?, '', ?, 'masuk', ?)");
         $stmt_trx->bind_param("isi", $id_kendaraan, $waktu_masuk, $id_petugas);
@@ -115,7 +112,7 @@ if (isset($_POST['action'])) {
             $db->query("UPDATE transaksi_parkir SET kode_barcode = '$barcode_final' WHERE id = $trx_id");
 
             $response['status'] = 'success';
-            $response['message'] = 'Tiket berhasil dikeluarkan.';
+            $response['message'] = 'Tiket Motor Keluar.';
             $response['data'] = [
                 'transaksi_id' => $trx_id,
                 'kode_barcode' => $barcode_final,
@@ -127,40 +124,38 @@ if (isset($_POST['action'])) {
         }
         $stmt_trx->close();
     }
+
     //=====================================
-    // AKSI: CARI KENDARAAN (UNTUK KELUAR)
+    // AKSI: CARI KENDARAAN (KELUAR)
     //=====================================
     elseif ($_POST['action'] == 'cari_tiket_atau_plat') {
         $kode_input = trim($_POST['kode_input']);
-
         if (empty($kode_input)) {
-            $response['message'] = 'Input tidak boleh kosong.';
-            echo json_encode($response); exit;
+            $response['message'] = 'Input kosong.'; echo json_encode($response); exit;
         }
 
-        // Query join (CARI BERDASARKAN KODE TIKET ATAU PLAT NOMOR)
-        $stmt = $db->prepare(
-            "SELECT 
-                t.id AS transaksi_id, t.waktu_masuk,
-                k.plat_nomor, k.jenis,
-                tar.tarif_per_jam
-             FROM transaksi_parkir t
-             JOIN kendaraan k ON t.id_kendaraan = k.id
-             LEFT JOIN tarif_parkir tar ON k.jenis = tar.jenis_kendaraan
-             WHERE (t.kode_barcode = ? OR k.plat_nomor = ?) AND t.status = 'masuk'"
-        );
+        $stmt = $db->prepare("SELECT t.id AS transaksi_id, t.waktu_masuk, k.plat_nomor, k.jenis, tar.tarif_per_jam 
+                              FROM transaksi_parkir t 
+                              JOIN kendaraan k ON t.id_kendaraan = k.id 
+                              LEFT JOIN tarif_parkir tar ON k.jenis = tar.jenis_kendaraan 
+                              WHERE (t.kode_barcode = ? OR k.plat_nomor = ?) AND t.status = 'masuk'");
         $stmt->bind_param("ss", $kode_input, $kode_input);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows == 0) {
-            $response['message'] = "Tiket/Plat tidak ditemukan atau kendaraan sudah keluar.";
-            echo json_encode($response); exit;
+            $response['message'] = "Data tidak ditemukan."; echo json_encode($response); exit;
         }
 
         $data = $result->fetch_assoc();
+        
+        // Cek apakah jenis kendaraan sesuai pos (MOTOR)
+        if (strtolower($data['jenis']) != 'motor') {
+            $response['message'] = "Salah Jalur! Ini Pos Motor, kendaraan terdeteksi: " . ucfirst($data['jenis']);
+            echo json_encode($response); exit;
+        }
 
-        // --- Logika Perhitungan Biaya ---
+        // Hitung Biaya
         $waktu_masuk = new DateTime($data['waktu_masuk']);
         $waktu_sekarang = new DateTime();
         $durasi_detik = $waktu_sekarang->getTimestamp() - $waktu_masuk->getTimestamp();
@@ -169,7 +164,6 @@ if (isset($_POST['action'])) {
 
         $tarif_per_jam = (float) $data['tarif_per_jam'];
         $total_biaya = $total_jam * $tarif_per_jam;
-
         $durasi = $waktu_sekarang->diff($waktu_masuk);
         $durasi_format = $durasi->d . ' hari, ' . $durasi->h . ' jam, ' . $durasi->i . ' mnt';
         
@@ -187,7 +181,7 @@ if (isset($_POST['action'])) {
     }
     
     //=====================================
-    // AKSI: PROSES KENDARAAN KELUAR
+    // AKSI: PROSES KELUAR
     //=====================================
     elseif ($_POST['action'] == 'proses_keluar') {
         $transaksi_id = $_POST['transaksi_id'];
@@ -195,29 +189,19 @@ if (isset($_POST['action'])) {
         $id_petugas_keluar = $_SESSION['user_id'];
         $waktu_keluar = date('Y-m-d H:i:s');
 
-        $stmt = $db->prepare(
-            "UPDATE transaksi_parkir 
-             SET status = 'keluar', waktu_keluar = ?, biaya = ?, id_petugas_keluar = ? 
-             WHERE id = ? AND status = 'masuk'"
-        );
+        $stmt = $db->prepare("UPDATE transaksi_parkir SET status = 'keluar', waktu_keluar = ?, biaya = ?, id_petugas_keluar = ? WHERE id = ? AND status = 'masuk'");
         $stmt->bind_param("sdii", $waktu_keluar, $total_biaya, $id_petugas_keluar, $transaksi_id);
         
-        if ($stmt->execute()) {
-            if ($stmt->affected_rows > 0) {
-                $response['status'] = 'success';
-                $response['transaksi_id'] = $transaksi_id;
-            } else {
-                $response['message'] = 'Data transaksi tidak ditemukan (mungkin sudah diproses).';
-            }
+        if ($stmt->execute() && $stmt->affected_rows > 0) {
+            $response['status'] = 'success';
+            $response['transaksi_id'] = $transaksi_id;
         } else {
-            $response['message'] = 'Gagal memperbarui data.';
+            $response['message'] = 'Gagal proses keluar.';
         }
         $stmt->close();
     }
-
 }
 
-// Kembalikan respon sebagai JSON
 echo json_encode($response);
 $db->close();
 exit;
