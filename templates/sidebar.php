@@ -94,7 +94,15 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
                     <i class="fas fa-history w-6 text-center"></i>
                     <span class="ml-4">Riwayat Kendaraan</span>
                 </a>
-                
+
+                <a href="konfigurasi.php" 
+                    class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
+                    <?php echo ($current_page == 'konfigurasi.php') 
+                        ? 'bg-accent text-primary shadow-md' 
+                        : 'hover:bg-primary-700 hover:text-accent'; ?>">
+                    <i class="fas fa-cogs w-6 text-center"></i>
+                    <span class="ml-4">Konfigurasi Alat</span>
+                </a>
                 <a href="dashboard.php" 
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
                     <?php echo ($current_page == 'dashboard.php') 
