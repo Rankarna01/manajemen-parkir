@@ -33,8 +33,8 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
             <?php if ($user_role == 'owner'): ?>
                 <a href="dashboard.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'dashboard.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'dashboard.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-gauge w-6 text-center"></i>
                     <span class="ml-4">Dashboard</span>
@@ -42,8 +42,8 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
 
                 <a href="laporan.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'laporan.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'laporan.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-file-alt w-6 text-center"></i>
                     <span class="ml-4">Laporan</span>
@@ -51,17 +51,26 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
 
                 <a href="manajemen_pekerja.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'manajemen_pekerja.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'manajemen_pekerja.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-users w-6 text-center"></i>
                     <span class="ml-4">Manajemen Pekerja</span>
                 </a>
 
+                <a href="laporan_absensi.php"
+                    class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
+   <?php echo ($current_page == 'laporan_absensi.php')
+                    ? 'bg-accent text-primary shadow-md'
+                    : 'hover:bg-primary-700 hover:text-accent'; ?>">
+                    <i class="fas fa-calendar-check w-6 text-center"></i>
+                    <span class="ml-4">Laporan Absensi</span>
+                </a>
+
                 <a href="pengaturan_tarif.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'pengaturan_tarif.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'pengaturan_tarif.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-dollar-sign w-6 text-center"></i>
                     <span class="ml-4">Pengaturan Tarif</span>
@@ -69,51 +78,51 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
 
                 <a href="riwayat_kendaraan.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'riwayat_kendaraan.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'riwayat_kendaraan.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-rotate-left w-6 text-center"></i>
                     <span class="ml-4">Riwayat Kendaraan</span>
                 </a>
 
-                <a href="konfigurasi.php" 
+                <a href="konfigurasi.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'konfigurasi.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'konfigurasi.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-cogs w-6 text-center"></i>
                     <span class="ml-4">Konfigurasi Alat</span>
                 </a>
 
             <?php elseif ($user_role == 'pekerja'): ?>
-                <a href="pos_parkir.php" 
+                <a href="pos_parkir.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'pos_parkir.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'pos_parkir.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-desktop w-6 text-center"></i>
                     <span class="ml-4">Pos Parkir</span>
                 </a>
-                
-                <a href="riwayat_kendaraan.php" 
+
+                <a href="riwayat_kendaraan.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'riwayat_kendaraan.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'riwayat_kendaraan.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-history w-6 text-center"></i>
                     <span class="ml-4">Riwayat Kendaraan</span>
                 </a>
 
-                
-                <a href="dashboard.php" 
+
+                <a href="dashboard.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
-                    <?php echo ($current_page == 'dashboard.php') 
-                        ? 'bg-accent text-primary shadow-md' 
+                    <?php echo ($current_page == 'dashboard.php')
+                        ? 'bg-accent text-primary shadow-md'
                         : 'hover:bg-primary-700 hover:text-accent'; ?>">
                     <i class="fas fa-tachometer-alt w-6 text-center"></i>
                     <span class="ml-4">Dashboard</span>
                 </a>
-            
+
             <?php endif; ?>
         </nav>
 
