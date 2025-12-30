@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 19, 2025 at 05:22 PM
+-- Generation Time: Dec 28, 2025 at 03:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,32 @@ SET time_zone = "+00:00";
 --
 -- Database: `parkir-testing`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `absensi`
+--
+
+CREATE TABLE `absensi` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `pos_id` int(11) NOT NULL,
+  `waktu_masuk` datetime DEFAULT current_timestamp(),
+  `waktu_keluar` datetime DEFAULT NULL,
+  `koordinat_masuk` varchar(100) DEFAULT NULL,
+  `koordinat_keluar` varchar(100) DEFAULT NULL,
+  `status` enum('hadir','pulang') DEFAULT 'hadir'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `absensi`
+--
+
+INSERT INTO `absensi` (`id`, `user_id`, `pos_id`, `waktu_masuk`, `waktu_keluar`, `koordinat_masuk`, `koordinat_keluar`, `status`) VALUES
+(1, 2, 2, '2025-12-26 18:24:33', '2025-12-26 18:29:24', '3.555,98.6331', '3.5848192,98.6775552', 'pulang'),
+(2, 2, 3, '2025-12-28 20:59:51', '2025-12-28 21:00:02', '3.5848192,98.6775552', '3.5848192,98.6775552', 'pulang'),
+(3, 4, 2, '2025-12-28 21:22:44', NULL, '3.5848192,98.6775552', NULL, 'hadir');
 
 -- --------------------------------------------------------
 
@@ -80,7 +106,8 @@ INSERT INTO `kendaraan` (`id`, `plat_nomor`, `jenis`, `foto`, `created_at`) VALU
 (18, 'MTR-0606-17', 'mobil', NULL, '2025-12-16 06:06:10'),
 (19, 'MTR-0606-37', 'mobil', NULL, '2025-12-16 06:06:31'),
 (20, 'MTR-0616-37', 'motor', NULL, '2025-12-16 06:16:07'),
-(21, 'MTR-1429-40', 'motor', NULL, '2025-12-17 14:29:53');
+(21, 'MTR-1429-40', 'motor', NULL, '2025-12-17 14:29:53'),
+(22, 'MTR-1828-26', 'motor', NULL, '2025-12-26 18:28:36');
 
 -- --------------------------------------------------------
 
@@ -113,6 +140,7 @@ INSERT INTO `laporan_keuangan` (`id`, `periode`, `total_pendapatan`, `total_peng
 
 CREATE TABLE `pengaturan_sistem` (
   `id` int(11) NOT NULL,
+  `nama_pos` varchar(100) DEFAULT 'Pos Utama',
   `nama_instansi` varchar(100) DEFAULT 'RSIA ANANDA MAKASSAR',
   `alamat_instansi` varchar(255) DEFAULT 'Jl. Andi Djemma No.57',
   `footer_struk` varchar(100) DEFAULT 'Terima Kasih',
@@ -121,15 +149,18 @@ CREATE TABLE `pengaturan_sistem` (
   `ip_palang_masuk` varchar(50) DEFAULT '192.168.1.105/open',
   `ip_palang_keluar` varchar(50) DEFAULT '192.168.1.106/open',
   `ip_printer` varchar(50) DEFAULT '192.168.1.200/print',
-  `tipe_pos` enum('mobil','motor') DEFAULT 'mobil'
+  `tipe_pos` enum('mobil','motor') DEFAULT 'mobil',
+  `latitude` varchar(50) DEFAULT '-6.200000',
+  `longitude` varchar(50) DEFAULT '106.816666'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pengaturan_sistem`
 --
 
-INSERT INTO `pengaturan_sistem` (`id`, `nama_instansi`, `alamat_instansi`, `footer_struk`, `ip_kamera_masuk`, `ip_kamera_keluar`, `ip_palang_masuk`, `ip_palang_keluar`, `ip_printer`, `tipe_pos`) VALUES
-(1, 'RSIA ANANDA MAKASSAR', 'Jl. Andi Djemma No.57', 'Terima Kasih', '192.168.1.101', '192.168.1.102', '192.168.1.105/open', '192.168.1.106/open', '192.168.1.200/print', 'mobil');
+INSERT INTO `pengaturan_sistem` (`id`, `nama_pos`, `nama_instansi`, `alamat_instansi`, `footer_struk`, `ip_kamera_masuk`, `ip_kamera_keluar`, `ip_palang_masuk`, `ip_palang_keluar`, `ip_printer`, `tipe_pos`, `latitude`, `longitude`) VALUES
+(2, 'Pos Masuk Motor', 'RSIA ANANDA MAKASSAR', 'Jl. Andi Djemma No.57', 'Terima Kasih', '192.168.1.101', '192.168.1.102', '192.168.1.105/open', '192.168.1.106/open', '192.168.1.200/print', 'motor', '-6.200000', '106.816666'),
+(3, 'Pos Masuk Mobil', 'RSIA ANANDA MAKASSAR', 'Jl. Andi Djemma No.57', 'Terima Kasih', '192.168.1.102', '192.168.1.102', '192.168.1.106/open', '192.168.1.106/open', '192.168.1.200/print', 'mobil', '-6.200000', '106.816666');
 
 -- --------------------------------------------------------
 
@@ -215,7 +246,8 @@ INSERT INTO `transaksi_parkir` (`id`, `id_kendaraan`, `kode_barcode`, `waktu_mas
 (19, 18, 'PK-MTR-20251216-00019', '2025-12-16 06:06:10', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-16 06:06:10'),
 (20, 19, 'PK-MTR-20251216-00020', '2025-12-16 06:06:31', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-16 06:06:31'),
 (21, 20, 'PK-MTR-20251216-00021', '2025-12-16 06:16:07', '2025-12-16 06:17:23', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-16 06:16:07'),
-(22, 21, 'PK-MTR-20251217-00022', '2025-12-17 14:29:53', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-17 14:29:53');
+(22, 21, 'PK-MTR-20251217-00022', '2025-12-17 14:29:53', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-17 14:29:53'),
+(23, 22, 'PK-MTR-20251226-00023', '2025-12-26 18:28:36', '2025-12-26 18:29:05', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-26 18:28:36');
 
 -- --------------------------------------------------------
 
@@ -230,21 +262,31 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `role` enum('owner','pekerja') NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `assigned_pos_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(1, 'Admin Owner', 'owner@parkir.com', '$2y$10$ApD/.sHlVzNS4eNMVMlEgePhrwRFtmCN90Ek2Mrh2Yyz5MjLrvhcG', 'owner', '2025-10-18 17:13:43', '2025-10-18 17:18:33'),
-(2, 'Budi Pekerjaa', 'pekerja@parkir.com', '$2y$10$Bqjj4NFIEjvxsViyHGcu2Ohz5X/q2H8lMilGJERx0OTElfC0nZzWm', 'pekerja', '2025-10-18 17:13:43', '2025-12-09 23:40:56'),
-(3, 'jaya', 'jaya@parkir.gmail', '$2y$10$dbstPYccBKNegK2BVO8vbe4wKLXIU5lpohJTY9yWeSamRO1N9iTMO', 'pekerja', '2025-11-18 19:20:53', '2025-11-18 19:20:53');
+INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `created_at`, `updated_at`, `assigned_pos_id`) VALUES
+(1, 'Admin Owner', 'owner@parkir.com', '$2y$10$ApD/.sHlVzNS4eNMVMlEgePhrwRFtmCN90Ek2Mrh2Yyz5MjLrvhcG', 'owner', '2025-10-18 17:13:43', '2025-10-18 17:18:33', NULL),
+(2, 'Budi Pekerjaa', 'pekerja@parkir.com', '$2y$10$Bqjj4NFIEjvxsViyHGcu2Ohz5X/q2H8lMilGJERx0OTElfC0nZzWm', 'pekerja', '2025-10-18 17:13:43', '2025-12-09 23:40:56', NULL),
+(3, 'jaya', 'jaya@parkir.gmail', '$2y$10$dbstPYccBKNegK2BVO8vbe4wKLXIU5lpohJTY9yWeSamRO1N9iTMO', 'pekerja', '2025-11-18 19:20:53', '2025-11-18 19:20:53', NULL),
+(4, 'randy', 'randy@parkir.com', '$2y$10$0FbeQrLBYkrJB7rke.8dyemPfn8oKJWrNXZBp.TdPbnLvNxt94OoO', 'pekerja', '2025-12-22 09:01:39', '2025-12-22 09:01:39', NULL);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `absensi`
+--
+ALTER TABLE `absensi`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `pos_id` (`pos_id`);
 
 --
 -- Indexes for table `jenis_kendaraan`
@@ -307,6 +349,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `absensi`
+--
+ALTER TABLE `absensi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `jenis_kendaraan`
 --
 ALTER TABLE `jenis_kendaraan`
@@ -316,7 +364,7 @@ ALTER TABLE `jenis_kendaraan`
 -- AUTO_INCREMENT for table `kendaraan`
 --
 ALTER TABLE `kendaraan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `laporan_keuangan`
@@ -328,7 +376,7 @@ ALTER TABLE `laporan_keuangan`
 -- AUTO_INCREMENT for table `pengaturan_sistem`
 --
 ALTER TABLE `pengaturan_sistem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pengeluaran_operasional`
@@ -346,17 +394,24 @@ ALTER TABLE `tarif_parkir`
 -- AUTO_INCREMENT for table `transaksi_parkir`
 --
 ALTER TABLE `transaksi_parkir`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `absensi`
+--
+ALTER TABLE `absensi`
+  ADD CONSTRAINT `absensi_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `absensi_ibfk_2` FOREIGN KEY (`pos_id`) REFERENCES `pengaturan_sistem` (`id`);
 
 --
 -- Constraints for table `pengeluaran_operasional`
