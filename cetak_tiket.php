@@ -1,11 +1,10 @@
 <?php
-// Memanggil config DB dan autoload Composer
+// FILE: cetak_tiket.php
 require_once 'core/init.php';
+require_once 'vendor/autoload.php'; // Pastikan folder vendor Dompdf ada
 
-// Load Dompdf dan Barcode Generator
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Picqer\Barcode\BarcodeGeneratorPNG; // Pastikan library ini sudah diinstall via Composer
 
 // 1. Validasi Input
 if (!isset($_GET['id'])) {
@@ -37,155 +36,132 @@ if ($result->num_rows == 0) {
 }
 
 $data = $result->fetch_assoc();
-$stmt->close();
-$db->close();
 
-// 3. Generate Gambar Barcode (Base64)
-// Ini membuat gambar barcode yang bisa discan oleh alat scanner fisik
-$generator = new BarcodeGeneratorPNG();
-$barcodeData = $generator->getBarcode($data['kode_barcode'], $generator::TYPE_CODE_128, 2, 50);
-$barcodeBase64 = base64_encode($barcodeData);
+// 3. GENERATE BARCODE (Metode Paling Stabil: API Online)
+// Kita gunakan bwip-js API. Ini menghasilkan gambar barcode Code 128 yang presisi.
+// Tidak perlu install library tambahan di server.
+$barcode_text = $data['kode_barcode'];
+$barcode_url  = "https://bwipjs-api.metafloor.com/?bcid=code128&text={$barcode_text}&scale=3&height=12&includetext";
 
-// 4. Desain HTML untuk Struk (Thermal Printer Friendly)
-// Ukuran kertas diset dinamis untuk printer 80mm
+// Convert gambar ke Base64 agar bisa masuk ke PDF (Bypass masalah SSL/Image loading)
+try {
+    $barcode_image = base64_encode(file_get_contents($barcode_url));
+    $src_barcode   = 'data:image/png;base64,' . $barcode_image;
+} catch (Exception $e) {
+    $src_barcode   = ''; // Fallback jika internet mati (barcode tidak muncul)
+}
+
+// 4. HTML Layout (Thermal Printer 80mm)
 $html = "
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>Tiket Parkir - {$data['kode_barcode']}</title>
+    <title>Tiket Parkir</title>
     <style>
-        @page {
-            margin: 0;
-            padding: 0;
-        }
+        @page { margin: 0; padding: 0; }
         body { 
             font-family: 'Courier New', Courier, monospace; 
             font-size: 10pt; 
             color: #000;
             margin: 0;
-            padding: 5px;
-            background-color: #fff;
-        }
-        .container { 
-            width: 100%;
             padding: 5px 10px;
-            box-sizing: border-box;
         }
         .header { 
             text-align: center; 
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 10px;
             border-bottom: 2px dashed #000;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
-        .header h2 { margin: 0; font-size: 14pt; }
-        .header p { margin: 2px 0; font-size: 9pt; }
-        
-        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .content-table td { padding: 2px 0; vertical-align: top; }
-        .label { width: 40%; font-size: 9pt; }
-        .value { width: 60%; font-weight: bold; font-size: 10pt; text-align: right; }
+        .header h2 { margin: 0; font-size: 14pt; font-weight: bold; }
+        .header p { margin: 2px 0; font-size: 8pt; }
         
         .big-plat {
             text-align: center;
-            font-size: 16pt;
+            font-size: 18pt;
             font-weight: bold;
-            margin: 10px 0;
             border: 2px solid #000;
             padding: 5px;
+            margin: 10px 0;
             border-radius: 5px;
         }
-
-        .barcode-area {
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        td { vertical-align: top; padding: 2px 0; }
+        .label { font-size: 9pt; width: 35%; }
+        .val { font-weight: bold; text-align: right; width: 65%; }
+        
+        .barcode-box {
             text-align: center;
-            margin-top: 15px;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            padding: 5px 0;
         }
         .barcode-img {
-            width: 90%; /* Maksimalkan lebar barcode agar mudah discan */
+            width: 95%; /* Scanner lebih mudah baca jika lebar */
             height: auto;
         }
-        .barcode-text {
-            font-size: 10pt;
-            letter-spacing: 3px;
-            margin-top: 2px;
-        }
-
+        
         .footer { 
             text-align: center; 
             font-size: 8pt; 
-            margin-top: 15px;
+            margin-top: 10px;
             border-top: 1px dashed #000;
             padding-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class='container'>
-        <div class='header'>
-            <h2>PARKIR SISTEM</h2>
-            <p>Tiket Masuk Kendaraan</p>
-        </div>
+    <div class='header'>
+        <h2>PARKIR POS</h2>
+        <p>Tiket Masuk Kendaraan</p>
+    </div>
 
-        <div class='big-plat'>
-            " . htmlspecialchars(strtoupper($data['plat_nomor'])) . "
-        </div>
-        
-        <table class='content-table'>
-            <tr>
-                <td class='label'>ID Transaksi</td>
-                <td class='value'>#" . str_pad($data['id_transaksi'], 6, '0', STR_PAD_LEFT) . "</td>
-            </tr>
-            <tr>
-                <td class='label'>Jenis</td>
-                <td class='value'>" . ucfirst($data['jenis']) . "</td>
-            </tr>
-            <tr>
-                <td class='label'>Masuk</td>
-                <td class='value'>" . date('d/m/y H:i', strtotime($data['waktu_masuk'])) . "</td>
-            </tr>
-            <tr>
-                <td class='label'>Petugas</td>
-                <td class='value'>" . htmlspecialchars($data['nama_petugas_masuk']) . "</td>
-            </tr>
-        </table>
-        
-        <div class='barcode-area'>
-            <img class='barcode-img' src='data:image/png;base64,{$barcodeBase64}' alt='Barcode'>
-            <div class='barcode-text'>" . htmlspecialchars($data['kode_barcode']) . "</div>
-        </div>
-        
-        <div class='footer'>
-            JANGAN TINGGALKAN TIKET INI<br>
-            HILANG TIKET DENDA RP 50.000
-            <br><br>
-            " . date('d-m-Y H:i:s') . "
-        </div>
+    <div class='big-plat'>
+        " . htmlspecialchars(strtoupper($data['plat_nomor'])) . "
+    </div>
+    
+    <table>
+        <tr>
+            <td class='label'>ID Tiket</td>
+            <td class='val'>#" . $data['id_transaksi'] . "</td>
+        </tr>
+        <tr>
+            <td class='label'>Jenis</td>
+            <td class='val'>" . ucfirst($data['jenis']) . "</td>
+        </tr>
+        <tr>
+            <td class='label'>Masuk</td>
+            <td class='val'>" . date('d/m/y H:i', strtotime($data['waktu_masuk'])) . "</td>
+        </tr>
+        <tr>
+            <td class='label'>Petugas</td>
+            <td class='val'>" . htmlspecialchars($data['nama_petugas_masuk']) . "</td>
+        </tr>
+    </table>
+    
+    <div class='barcode-box'>
+        <img class='barcode-img' src='{$src_barcode}' alt='Barcode'>
+    </div>
+    
+    <div class='footer'>
+        JANGAN TINGGALKAN TIKET INI<br>
+        DENDA TIKET HILANG RP 20.000
     </div>
 </body>
 </html>
 ";
 
-// 5. Render PDF dengan Dompdf
+// 5. Render PDF
 $options = new Options();
-$options->set('isHtml5ParserEnabled', true);
-$options->set('isRemoteEnabled', true);
-$options->set('defaultFont', 'Courier');
-
+$options->set('isRemoteEnabled', true); // Wajib true agar gambar barcode muncul
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);
 
-// Set Ukuran Kertas Thermal (80mm x Auto Height)
-// Lebar 80mm ≈ 227 point. Tinggi kita buat panjang (misal 500pt) agar muat konten, printer akan memotong otomatis.
-$customPaper = array(0, 0, 227, 500); 
-$dompdf->setPaper($customPaper);
+// Set ukuran kertas: Lebar 80mm (~227pt), Tinggi Otomatis (panjang ke bawah)
+$dompdf->setPaper(array(0, 0, 227, 600));
 
-// Render
 $dompdf->render();
 
-// Output: Langsung preview di browser (tanpa download otomatis) agar petugas bisa print manual jika perlu
+// Tampilkan PDF (Attachment: 0 artinya preview di browser, bukan download)
 $dompdf->stream("tiket-{$data['kode_barcode']}.pdf", ["Attachment" => 0]);
-exit;
 ?>

@@ -251,10 +251,57 @@ $db->close();
     </main>
 </div>
 
-<?php 
-if ($show_modal_pilih_pos) { include 'modals/modal_pilih_pos.php'; }
-if ($show_modal_absensi && !$show_modal_pilih_pos) { include 'modals/modal_absensi.php'; }
-?>
+<?php if ($show_modal_pilih_pos): ?>
+<div class="fixed inset-0 bg-gray-900 bg-opacity-90 z-[9999] flex items-center justify-center backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center relative">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Pilih Lokasi Jaga</h2>
+            <p class="text-gray-500">Halo, di pos mana Anda bertugas saat ini?</p>
+        </div>
+        <form method="POST">
+            <div class="space-y-3">
+                <?php while($p = $daftar_pos->fetch_assoc()): ?>
+                <button type="submit" name="pilih_pos_id" value="<?php echo $p['id']; ?>" 
+                        class="w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition group">
+                    <div class="text-left">
+                        <div class="font-bold text-gray-800 group-hover:text-blue-700"><?php echo $p['nama_pos']; ?></div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">POS <?php echo strtoupper($p['tipe_pos']); ?></div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 group-hover:text-blue-500"></i>
+                </button>
+                <?php endwhile; ?>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($show_modal_absensi && !$show_modal_pilih_pos): ?>
+<div class="fixed inset-0 bg-gray-900 bg-opacity-95 z-[9999] flex items-center justify-center backdrop-blur-md">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center relative overflow-hidden">
+        <div class="h-2 bg-green-500 absolute top-0 left-0 w-full"></div>
+        <div class="mb-6">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <i class="fas fa-map-marker-alt text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Absensi Kehadiran</h2>
+            <p class="text-gray-500 mt-2">Anda bertugas di <b class="text-gray-800"><?php echo $config['nama_pos']; ?></b>.</p>
+            <p class="text-xs text-gray-400">Sistem mendeteksi lokasi Anda untuk validasi.</p>
+        </div>
+
+        <div id="status_lokasi" class="mb-4 text-sm font-semibold text-orange-500">
+            <i class="fas fa-spinner fa-spin mr-1"></i> Mendeteksi Lokasi GPS...
+        </div>
+        
+        <button id="btnAbsenMasuk" disabled class="w-full py-3 bg-gray-300 text-gray-500 rounded-xl font-bold shadow-lg transition cursor-not-allowed">
+            Konfirmasi Kehadiran
+        </button>
+        
+        <input type="hidden" id="user_lat">
+        <input type="hidden" id="user_long">
+    </div>
+</div>
+<?php endif; ?>
 
 <?php require_once '../../templates/footer_app.php'; ?>
 

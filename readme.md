@@ -105,5 +105,13 @@ Cara Owner Monitoring:
 Owner cukup buka browser di HP-nya.
 
 Ketik IP VPN Server tadi: http://100.10.10.1/sistem-parkir.
-
 BOOM! Owner bisa melihat dashboard dan laporan secara real-time seolah-olah dia ada di ruangan server, tapi database tetap aman di lokal.
+
+
+desain- nota
+barcode tiket p. qris
+login id bukan email
+absensi
+lokasi kordinat kurang akurat
+cctv aktif terus 
+absensi tersendiri untuk produk sistem
