@@ -19,12 +19,15 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
 
         <div class="flex items-center justify-center h-20 border-b border-primary-900 shadow-md">
             <div class="flex items-center space-x-3">
-                <div class="text-accent p-1">
-                    <i class="fas fa-parking text-3xl"></i>
-                </div>
-                <span class="text-2xl font-bold tracking-wider">
-                    Ventria<span class="text-accent">Park</span>
-                </span>
+               <div class="text-accent p-1">
+    <div class="w-10 h-10 bg-accent rounded flex items-center justify-center">
+        <span class="text-black font-bold text-lg">VP</span>
+    </div>
+</div>
+<span class="text-2xl font-bold tracking-wider">
+    Ventria<span class="text-accent">Park</span>
+</span>
+
             </div>
         </div>
 
