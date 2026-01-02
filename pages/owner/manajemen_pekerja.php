@@ -17,32 +17,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // --- AKSI TAMBAH PEKERJA ---
     if (isset($_POST['action']) && $_POST['action'] == 'tambah') {
         $nama = $_POST['nama'];
-        $email = $_POST['email'];
+        $np   = $_POST['np']; // GANTI email JADI np
         $password = $_POST['password'];
+        $assigned_pos = !empty($_POST['assigned_pos_id']) ? $_POST['assigned_pos_id'] : NULL;
         
         // Validasi
-        if (empty($nama) || empty($email) || empty($password)) {
+        if (empty($nama) || empty($np) || empty($password)) {
             $_SESSION['error_message'] = "Semua field wajib diisi.";
         } else {
-            // Cek email duplikat
-            $stmt_check = $db->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt_check->bind_param("s", $email);
+            // Cek NP duplikat
+            $stmt_check = $db->prepare("SELECT id FROM users WHERE np = ?");
+            $stmt_check->bind_param("s", $np);
             $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
             
-            if ($result_check->num_rows > 0) {
-                $_SESSION['error_message'] = "Email sudah terdaftar. Gunakan email lain.";
+            if ($stmt_check->get_result()->num_rows > 0) {
+                $_SESSION['error_message'] = "Nomor Pekerja (NP) sudah terdaftar.";
             } else {
-                // Email aman, hash password
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 
-                $stmt_insert = $db->prepare("INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, 'pekerja')");
-                $stmt_insert->bind_param("sss", $nama, $email, $hashed_password);
+                // Query Insert NP
+                $stmt_insert = $db->prepare("INSERT INTO users (nama, np, password, role, assigned_pos_id) VALUES (?, ?, ?, 'pekerja', ?)");
+                $stmt_insert->bind_param("sssi", $nama, $np, $hashed_password, $assigned_pos);
                 
                 if ($stmt_insert->execute()) {
                     $_SESSION['success_message'] = "Pekerja baru berhasil ditambahkan.";
                 } else {
-                    $_SESSION['error_message'] = "Gagal menambahkan pekerja. Terjadi error DB.";
+                    $_SESSION['error_message'] = "Gagal menambahkan pekerja. Error DB.";
                 }
                 $stmt_insert->close();
             }
@@ -54,38 +54,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['action']) && $_POST['action'] == 'edit') {
         $id_pekerja = $_POST['id_pekerja'];
         $nama = $_POST['nama'];
-        $email = $_POST['email'];
-        $password = $_POST['password']; // Password baru (opsional)
+        $np   = $_POST['np']; // GANTI email JADI np
+        $password = $_POST['password']; 
+        $assigned_pos = !empty($_POST['assigned_pos_id']) ? $_POST['assigned_pos_id'] : NULL;
 
-        // Validasi
-        if (empty($nama) || empty($email) || empty($id_pekerja)) {
-            $_SESSION['error_message'] = "Nama dan Email tidak boleh kosong.";
+        if (empty($nama) || empty($np) || empty($id_pekerja)) {
+            $_SESSION['error_message'] = "Nama dan NP tidak boleh kosong.";
         } else {
-            // Cek email duplikat (pastikan bukan email dia sendiri)
-            $stmt_check = $db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-            $stmt_check->bind_param("si", $email, $id_pekerja);
+            // Cek NP duplikat
+            $stmt_check = $db->prepare("SELECT id FROM users WHERE np = ? AND id != ?");
+            $stmt_check->bind_param("si", $np, $id_pekerja);
             $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
             
-            if ($result_check->num_rows > 0) {
-                $_SESSION['error_message'] = "Email sudah terdaftar oleh pengguna lain.";
+            if ($stmt_check->get_result()->num_rows > 0) {
+                $_SESSION['error_message'] = "Nomor Pekerja sudah dipakai orang lain.";
             } else {
-                // Email aman, siapkan query update
                 if (!empty($password)) {
-                    // Jika password diisi, update password
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt_update = $db->prepare("UPDATE users SET nama = ?, email = ?, password = ? WHERE id = ?");
-                    $stmt_update->bind_param("sssi", $nama, $email, $hashed_password, $id_pekerja);
+                    $stmt_update = $db->prepare("UPDATE users SET nama=?, np=?, password=?, assigned_pos_id=? WHERE id=?");
+                    $stmt_update->bind_param("sssii", $nama, $np, $hashed_password, $assigned_pos, $id_pekerja);
                 } else {
-                    // Jika password kosong, jangan update password
-                    $stmt_update = $db->prepare("UPDATE users SET nama = ?, email = ? WHERE id = ?");
-                    $stmt_update->bind_param("ssi", $nama, $email, $id_pekerja);
+                    $stmt_update = $db->prepare("UPDATE users SET nama=?, np=?, assigned_pos_id=? WHERE id=?");
+                    $stmt_update->bind_param("ssii", $nama, $np, $assigned_pos, $id_pekerja);
                 }
                 
                 if ($stmt_update->execute()) {
-                    $_SESSION['success_message'] = "Data pekerja berhasil diperbarui.";
+                    $_SESSION['success_message'] = "Data pekerja diperbarui.";
                 } else {
-                    $_SESSION['error_message'] = "Gagal memperbarui data pekerja.";
+                    $_SESSION['error_message'] = "Gagal update data.";
                 }
                 $stmt_update->close();
             }
@@ -94,56 +90,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // --- AKSI HAPUS PEKERJA ---
-    // Aksi ini akan dipicu oleh JavaScript
     if (isset($_POST['action']) && $_POST['action'] == 'hapus') {
         $id_pekerja = $_POST['id_pekerja_delete'];
-        
-        // HATI-HATI: Sebaiknya cek dulu apakah pekerja ini terkait dengan transaksi
-        // Untuk saat ini, kita langsung delete
         $stmt_delete = $db->prepare("DELETE FROM users WHERE id = ? AND role = 'pekerja'");
         $stmt_delete->bind_param("i", $id_pekerja);
         
         if ($stmt_delete->execute()) {
-            $_SESSION['success_message'] = "Data pekerja berhasil dihapus.";
+            $_SESSION['success_message'] = "Data pekerja dihapus.";
         } else {
-            $_SESSION['error_message'] = "Gagal menghapus data pekerja (mungkin terkait data lain).";
+            $_SESSION['error_message'] = "Gagal hapus data.";
         }
         $stmt_delete->close();
     }
 
-    // Redirect setelah proses POST selesai
     header('Location: manajemen_pekerja.php');
     exit;
 }
 
 // === PROSES GET (BACA DATA) ===
 $pekerja_list = [];
-$result = $db->query("SELECT id, nama, email, created_at FROM users WHERE role = 'pekerja' ORDER BY nama");
+// GANTI QUERY: u.email -> u.np
+$query = "SELECT u.id, u.nama, u.np, u.created_at, u.assigned_pos_id, p.nama_pos 
+          FROM users u 
+          LEFT JOIN pengaturan_sistem p ON u.assigned_pos_id = p.id 
+          WHERE u.role = 'pekerja' 
+          ORDER BY u.nama";
+$result = $db->query($query);
 while ($row = $result->fetch_assoc()) {
     $pekerja_list[] = $row;
 }
-$db->close();
 
-//=========================================
-// TAMPILAN HTML (BAGIAN BAWAH)
-//=========================================
+// Ambil list Pos untuk Dropdown
+$pos_options = [];
+$res_pos = $db->query("SELECT id, nama_pos, tipe_pos FROM pengaturan_sistem");
+while($p = $res_pos->fetch_assoc()){
+    $pos_options[] = $p;
+}
+
+$db->close();
 ?>
 
-<?php require_once '../../templates/header_app.php'; // Header ?>
-
-<?php require_once '../../templates/sidebar.php'; // Sidebar ?>
+<?php require_once '../../templates/header_app.php'; ?>
+<?php require_once '../../templates/sidebar.php'; ?>
 
 <div class="flex-1 flex flex-col overflow-hidden">
-    
-    <?php require_once '../../templates/navbar_app.php'; // Navbar ?>
+    <?php require_once '../../templates/navbar_app.php'; ?>
 
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-secondary p-6">
-        
         <div class="container mx-auto">
+            
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h2 class="text-2xl font-bold text-primary tracking-tight">Manajemen Pekerja</h2>
-                    <p class="text-gray-500">Tambah, edit, atau hapus data petugas parkir.</p>
+                    <p class="text-gray-500">Atur akun petugas dan lokasi tugas mereka.</p>
                 </div>
                 <button id="btnTambahModal" class="bg-accent hover:bg-yellow-500 text-primary font-bold py-2.5 px-5 rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center">
                     <i class="fas fa-plus mr-2"></i> Tambah Pekerja
@@ -155,20 +154,18 @@ $db->close();
                     <table class="min-w-full divide-y divide-gray-100">
                         <thead class="bg-primary text-white">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nama</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Bergabung Sejak</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider">Aksi</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Nama</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Nomor Pekerja (NP)</th> <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Penugasan Pos</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Bergabung</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             <?php if (empty($pekerja_list)): ?>
                                 <tr>
-                                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 bg-gray-50">
-                                        <div class="flex flex-col items-center justify-center">
-                                            <i class="fas fa-users-slash text-4xl text-gray-300 mb-2"></i>
-                                            <p>Belum ada data pekerja.</p>
-                                        </div>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 bg-gray-50">
+                                        <i class="fas fa-users-slash text-4xl text-gray-300 mb-2"></i>
+                                        <p>Belum ada data pekerja.</p>
                                     </td>
                                 </tr>
                             <?php else: ?>
@@ -184,23 +181,30 @@ $db->close();
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        <?php echo htmlspecialchars($pekerja['email']); ?>
+                                    <td class="px-6 py-4 text-sm text-gray-600 font-mono font-bold">
+                                        <?php echo htmlspecialchars($pekerja['np']); ?> </td>
+                                    <td class="px-6 py-4">
+                                        <?php if($pekerja['assigned_pos_id']): ?>
+                                            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">
+                                                <i class="fas fa-map-marker-alt mr-1"></i> <?php echo $pekerja['nama_pos']; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded">Bebas / Belum Ditugaskan</span>
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span class="px-2 py-1 rounded bg-secondary text-gray-600 text-xs font-medium">
-                                            <?php echo date('d M Y', strtotime($pekerja['created_at'])); ?>
-                                        </span>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        <?php echo date('d M Y', strtotime($pekerja['created_at'])); ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <button class="btn-edit text-primary hover:text-accent transition duration-200"
+                                    <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                                        <button class="btn-edit text-primary hover:text-accent transition"
                                                 data-id="<?php echo $pekerja['id']; ?>"
                                                 data-nama="<?php echo htmlspecialchars($pekerja['nama']); ?>"
-                                                data-email="<?php echo htmlspecialchars($pekerja['email']); ?>"
+                                                data-np="<?php echo htmlspecialchars($pekerja['np']); ?>" 
+                                                data-pos="<?php echo $pekerja['assigned_pos_id']; ?>"
                                                 title="Edit">
                                             <i class="fas fa-edit fa-lg"></i>
                                         </button>
-                                        <button class="btn-hapus text-gray-400 hover:text-red-600 transition duration-200"
+                                        <button class="btn-hapus text-gray-400 hover:text-red-600 transition"
                                                 data-id="<?php echo $pekerja['id']; ?>"
                                                 data-nama="<?php echo htmlspecialchars($pekerja['nama']); ?>"
                                                 title="Hapus">
@@ -214,159 +218,139 @@ $db->close();
                     </table>
                 </div>
             </div>
-
         </div>
     </main>
 </div>
 
 <div id="tambahModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 backdrop-blur-sm">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-100">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-primary">Tambah Pekerja Baru</h3>
-            <button id="btnBatalTambah" class="text-gray-400 hover:text-red-500 transition">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+            <button id="btnBatalTambah" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <form action="manajemen_pekerja.php" method="POST">
+        <form action="" method="POST">
             <input type="hidden" name="action" value="tambah">
             <div class="mb-4">
-                <label for="nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
-                <input type="text" id="nama" name="nama" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="Contoh: Budi Santoso">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" name="nama" class="w-full px-4 py-2 border rounded-lg" required>
             </div>
             <div class="mb-4">
-                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input type="email" id="email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="email@contoh.com">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Pekerja (NP)</label>
+                <input type="text" name="np" class="w-full px-4 py-2 border rounded-lg font-mono" required placeholder="Contoh: 2023001">
             </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Tugaskan Di Pos (Opsional)</label>
+                <select name="assigned_pos_id" class="w-full px-4 py-2 border rounded-lg bg-white">
+                    <option value="">-- Bebas (Bisa Pilih Sendiri) --</option>
+                    <?php foreach($pos_options as $p): ?>
+                        <option value="<?php echo $p['id']; ?>">
+                            <?php echo $p['nama_pos']; ?> (<?php echo strtoupper($p['tipe_pos']); ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div class="mb-6">
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                <input type="password" id="password" name="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required placeholder="********">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" class="w-full px-4 py-2 border rounded-lg" required>
             </div>
             <div class="flex justify-end space-x-3">
-                <button type="button" id="btnBatalTambahModal" class="px-5 py-2.5 bg-secondary text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition">Batal</button>
-                <button type="submit" class="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-blue-900 shadow-md transition">Simpan</button>
+                <button type="button" id="btnBatalTambahModal" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg">Simpan</button>
             </div>
         </form>
     </div>
 </div>
 
 <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 backdrop-blur-sm">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-100">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-primary">Edit Data Pekerja</h3>
-            <button id="btnBatalEdit" class="text-gray-400 hover:text-red-500 transition">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+            <button id="btnBatalEdit" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <form action="manajemen_pekerja.php" method="POST">
+        <form action="" method="POST">
             <input type="hidden" name="action" value="edit">
             <input type="hidden" id="modal_edit_id" name="id_pekerja">
             
             <div class="mb-4">
-                <label for="modal_edit_nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
-                <input type="text" id="modal_edit_nama" name="nama" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" id="modal_edit_nama" name="nama" class="w-full px-4 py-2 border rounded-lg" required>
             </div>
             <div class="mb-4">
-                <label for="modal_edit_email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input type="email" id="modal_edit_email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" required>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Pekerja (NP)</label>
+                <input type="text" id="modal_edit_np" name="np" class="w-full px-4 py-2 border rounded-lg font-mono" required>
             </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Tugaskan Di Pos</label>
+                <select id="modal_edit_pos" name="assigned_pos_id" class="w-full px-4 py-2 border rounded-lg bg-white">
+                    <option value="">-- Bebas --</option>
+                    <?php foreach($pos_options as $p): ?>
+                        <option value="<?php echo $p['id']; ?>">
+                            <?php echo $p['nama_pos']; ?> (<?php echo strtoupper($p['tipe_pos']); ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div class="mb-6">
-                <label for="modal_edit_password" class="block text-sm font-semibold text-gray-700 mb-2">Password Baru</label>
-                <input type="password" id="modal_edit_password" name="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition outline-none" placeholder="Kosongkan jika tidak diubah">
-                <p class="text-xs text-gray-400 mt-1">Biarkan kosong jika tidak ingin mengganti password.</p>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Password Baru</label>
+                <input type="password" name="password" class="w-full px-4 py-2 border rounded-lg" placeholder="(Kosongkan jika tetap)">
             </div>
             <div class="flex justify-end space-x-3">
-                <button type="button" id="btnBatalEditModal" class="px-5 py-2.5 bg-secondary text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition">Batal</button>
-                <button type="submit" class="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-blue-900 shadow-md transition">Simpan Perubahan</button>
+                <button type="button" id="btnBatalEditModal" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg">Simpan</button>
             </div>
         </form>
     </div>
 </div>
 
-<?php require_once '../../templates/footer_app.php'; // Footer ?>
+<?php require_once '../../templates/footer_app.php'; ?>
 
 <script>
 $(document).ready(function() {
-    
-    // --- NOTIFIKASI SWEETALERT ---
     <?php if (isset($_SESSION['success_message'])): ?>
-        Swal.fire({
-            title: 'Berhasil!',
-            text: '<?php echo $_SESSION['success_message']; ?>',
-            icon: 'success',
-            confirmButtonColor: '#0B1F4F', // Primary Color
-            confirmButtonText: 'OK'
-        });
+        Swal.fire('Berhasil!', '<?php echo $_SESSION['success_message']; ?>', 'success');
         <?php unset($_SESSION['success_message']); ?>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error_message'])): ?>
-        Swal.fire({
-            title: 'Gagal!',
-            text: '<?php echo $_SESSION['error_message']; ?>',
-            icon: 'error',
-            confirmButtonColor: '#EF4444', // Red Color
-            confirmButtonText: 'OK'
-        });
+        Swal.fire('Gagal!', '<?php echo $_SESSION['error_message']; ?>', 'error');
         <?php unset($_SESSION['error_message']); ?>
     <?php endif; ?>
+    
+    $('#btnTambahModal').click(function() { $('#tambahModal').removeClass('hidden').addClass('flex'); });
+    $('#btnBatalTambah, #btnBatalTambahModal').click(function() { $('#tambahModal').addClass('hidden').removeClass('flex'); });
 
-    // --- MODAL TAMBAH ---
-    // Tampilkan modal tambah
-    $('#btnTambahModal').on('click', function() {
-        $('#tambahModal').removeClass('hidden').addClass('flex');
-    });
-    // Sembunyikan modal tambah
-    $('#btnBatalTambah, #btnBatalTambahModal').on('click', function() {
-        $('#tambahModal').addClass('hidden').removeClass('flex');
-    });
-
-    // --- MODAL EDIT ---
-    // Tampilkan modal edit
-    $('.btn-edit').on('click', function() {
-        // Ambil data dari tombol
-        var id = $(this).data('id');
-        var nama = $(this).data('nama');
-        var email = $(this).data('email');
+    // JS untuk Edit (Mapping data ke form)
+    $('.btn-edit').click(function() {
+        $('#modal_edit_id').val($(this).data('id'));
+        $('#modal_edit_nama').val($(this).data('nama'));
+        $('#modal_edit_np').val($(this).data('np')); // Ambil data NP
+        $('#modal_edit_pos').val($(this).data('pos')); 
         
-        // Isi form di modal
-        $('#modal_edit_id').val(id);
-        $('#modal_edit_nama').val(nama);
-        $('#modal_edit_email').val(email);
-        $('#modal_edit_password').val(''); // Kosongkan field password
-        
-        // Tampilkan modal
         $('#editModal').removeClass('hidden').addClass('flex');
     });
-    // Sembunyikan modal edit
-    $('#btnBatalEdit, #btnBatalEditModal').on('click', function() {
-        $('#editModal').addClass('hidden').removeClass('flex');
-    });
+    $('#btnBatalEdit, #btnBatalEditModal').click(function() { $('#editModal').addClass('hidden').removeClass('flex'); });
 
-    // --- AKSI HAPUS (DENGAN SWEETALERT) ---
-    $('.btn-hapus').on('click', function() {
+    $('.btn-hapus').click(function() {
         var id = $(this).data('id');
         var nama = $(this).data('nama');
-        
         Swal.fire({
-            title: 'Anda yakin?',
-            text: "Anda akan menghapus data pekerja '" + nama + "'. Aksi ini tidak bisa dibatalkan!",
+            title: 'Hapus ' + nama + '?',
+            text: "Data tidak bisa dikembalikan!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#EF4444', // Red Color
-            cancelButtonColor: '#0B1F4F', // Primary Color
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Ya, Hapus',
+            confirmButtonColor: '#d33'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Buat form dinamis untuk submit POST
-                var form = $('<form action="manajemen_pekerja.php" method="POST"></form>');
-                form.append('<input type="hidden" name="action" value="hapus">');
-                form.append('<input type="hidden" name="id_pekerja_delete" value="' + id + '">');
+                var form = $('<form action="" method="POST"><input type="hidden" name="action" value="hapus"><input type="hidden" name="id_pekerja_delete" value="' + id + '"></form>');
                 $('body').append(form);
                 form.submit();
             }
         });
     });
-
 });
 </script>
