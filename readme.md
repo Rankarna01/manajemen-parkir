@@ -112,6 +112,8 @@ desain- nota
 barcode tiket p. qris
 login id bukan email
 absensi
+
 lokasi kordinat kurang akurat (memang ga bisa karna berjalan di lingkungan pc atau leptop yg notabend nya tidak ada maps nya uda saya coba via handpone di akurat solusi nya menghilangkan kolom lokasi di owner)
+
 cctv aktif terus ini sudah 
 absensi tersendiri untuk produk sistem

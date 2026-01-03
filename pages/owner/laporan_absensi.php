@@ -45,7 +45,7 @@ $result = $db->query($query);
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Pos Jaga</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Check-In</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Check-Out</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Lokasi</th>
+                            <!-- <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Lokasi</th> -->
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -74,15 +74,7 @@ $result = $db->query($query);
                                             </span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <?php if (!empty($row['koordinat_masuk'])): ?>
-                                            <a href="http://maps.google.com/maps?q=<?php echo $row['koordinat_masuk']; ?>" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
-                                                <i class="fas fa-map-marker-alt mr-1"></i> Peta
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="text-gray-400 text-xs italic">Lokasi Tidak Terdeteksi</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <!--  -->
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
