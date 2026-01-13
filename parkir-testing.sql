@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 28, 2025 at 03:32 PM
+-- Generation Time: Jan 03, 2026 at 06:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,7 +45,13 @@ CREATE TABLE `absensi` (
 INSERT INTO `absensi` (`id`, `user_id`, `pos_id`, `waktu_masuk`, `waktu_keluar`, `koordinat_masuk`, `koordinat_keluar`, `status`) VALUES
 (1, 2, 2, '2025-12-26 18:24:33', '2025-12-26 18:29:24', '3.555,98.6331', '3.5848192,98.6775552', 'pulang'),
 (2, 2, 3, '2025-12-28 20:59:51', '2025-12-28 21:00:02', '3.5848192,98.6775552', '3.5848192,98.6775552', 'pulang'),
-(3, 4, 2, '2025-12-28 21:22:44', NULL, '3.5848192,98.6775552', NULL, 'hadir');
+(3, 4, 2, '2025-12-28 21:22:44', NULL, '3.5848192,98.6775552', NULL, 'hadir'),
+(4, 2, 2, '2025-12-29 23:19:17', '2025-12-30 13:36:18', '3.5848192,98.6775552', '0,0', 'pulang'),
+(5, 2, 2, '2025-12-30 13:34:39', '2025-12-30 13:36:18', '3.5848192,98.6775552', '0,0', 'pulang'),
+(6, 2, 2, '2025-12-30 14:13:49', '2025-12-30 14:14:49', '0,0', '0,0', 'pulang'),
+(7, 4, 2, '2025-12-30 14:15:13', NULL, '0,0', NULL, 'hadir'),
+(8, 2, 2, '2025-12-30 14:17:31', NULL, '0,0', NULL, 'hadir'),
+(9, 2, 2, '2026-01-04 00:27:30', NULL, '0,0', NULL, 'hadir');
 
 -- --------------------------------------------------------
 
@@ -107,7 +113,23 @@ INSERT INTO `kendaraan` (`id`, `plat_nomor`, `jenis`, `foto`, `created_at`) VALU
 (19, 'MTR-0606-37', 'mobil', NULL, '2025-12-16 06:06:31'),
 (20, 'MTR-0616-37', 'motor', NULL, '2025-12-16 06:16:07'),
 (21, 'MTR-1429-40', 'motor', NULL, '2025-12-17 14:29:53'),
-(22, 'MTR-1828-26', 'motor', NULL, '2025-12-26 18:28:36');
+(22, 'MTR-1828-26', 'motor', NULL, '2025-12-26 18:28:36'),
+(23, 'MTR-2319-39', 'motor', NULL, '2025-12-29 23:19:50'),
+(24, 'MTR-2328-57', 'motor', NULL, '2025-12-29 23:28:12'),
+(25, 'MTR-2350-78', 'motor', NULL, '2025-12-29 23:50:50'),
+(26, 'MTR-2350-98', 'motor', NULL, '2025-12-29 23:50:58'),
+(27, 'MTR-1413-56', 'motor', NULL, '2025-12-30 14:13:54'),
+(28, 'MTR-1414-37', 'motor', NULL, '2025-12-30 14:14:15'),
+(29, 'MTR-1414-99', 'motor', NULL, '2025-12-30 14:14:43'),
+(30, 'MTR-1415-77', 'motor', NULL, '2025-12-30 14:15:19'),
+(31, 'MTR-1416-20', 'motor', NULL, '2025-12-30 14:16:08'),
+(32, 'MTR-1416-44', 'motor', NULL, '2025-12-30 14:16:43'),
+(33, 'MTR-1417-11', 'motor', NULL, '2025-12-30 14:17:36'),
+(34, 'MTR-1418-99', 'motor', NULL, '2025-12-30 14:18:22'),
+(35, 'MTR-1418-22', 'motor', NULL, '2025-12-30 14:18:30'),
+(36, 'MTR-1419-11', 'motor', NULL, '2025-12-30 14:19:16'),
+(37, 'MTR-1440-72', 'motor', NULL, '2025-12-30 14:40:24'),
+(38, 'MTR-1445-34', 'motor', NULL, '2025-12-30 14:45:19');
 
 -- --------------------------------------------------------
 
@@ -247,7 +269,23 @@ INSERT INTO `transaksi_parkir` (`id`, `id_kendaraan`, `kode_barcode`, `waktu_mas
 (20, 19, 'PK-MTR-20251216-00020', '2025-12-16 06:06:31', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-16 06:06:31'),
 (21, 20, 'PK-MTR-20251216-00021', '2025-12-16 06:16:07', '2025-12-16 06:17:23', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-16 06:16:07'),
 (22, 21, 'PK-MTR-20251217-00022', '2025-12-17 14:29:53', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-17 14:29:53'),
-(23, 22, 'PK-MTR-20251226-00023', '2025-12-26 18:28:36', '2025-12-26 18:29:05', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-26 18:28:36');
+(23, 22, 'PK-MTR-20251226-00023', '2025-12-26 18:28:36', '2025-12-26 18:29:05', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-26 18:28:36'),
+(24, 23, 'PK-MTR-20251229-00024', '2025-12-29 23:19:50', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-29 23:19:50'),
+(25, 24, 'PK-MTR-20251229-00025', '2025-12-29 23:28:12', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-29 23:28:12'),
+(26, 25, 'PK-MTR-20251229-00026', '2025-12-29 23:50:50', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-29 23:50:50'),
+(27, 26, 'PK-MTR-20251229-00027', '2025-12-29 23:50:58', '2025-12-29 23:51:25', 2000.00, 'keluar', NULL, NULL, 2, 2, '2025-12-29 23:50:58'),
+(28, 27, 'PK-MTR-20251230-00028', '2025-12-30 14:13:54', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:13:54'),
+(29, 28, 'PK-MTR-20251230-00029', '2025-12-30 14:14:15', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:14:15'),
+(30, 29, 'PK-MTR-20251230-00030', '2025-12-30 14:14:43', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:14:43'),
+(31, 30, 'PK-MTR-20251230-00031', '2025-12-30 14:15:19', NULL, NULL, 'masuk', NULL, NULL, 4, NULL, '2025-12-30 14:15:19'),
+(32, 31, 'PK-MTR-20251230-00032', '2025-12-30 14:16:08', '2025-12-30 14:16:32', 2000.00, 'keluar', NULL, NULL, 4, 4, '2025-12-30 14:16:08'),
+(33, 32, 'PK-MTR-20251230-00033', '2025-12-30 14:16:43', NULL, NULL, 'masuk', NULL, NULL, 4, NULL, '2025-12-30 14:16:43'),
+(34, 33, 'PK-MTR-20251230-00034', '2025-12-30 14:17:36', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:17:36'),
+(35, 34, 'PK-MTR-20251230-00035', '2025-12-30 14:18:22', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:18:22'),
+(36, 35, 'PK-MTR-20251230-00036', '2025-12-30 14:18:30', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:18:30'),
+(37, 36, 'PK-MTR-20251230-00037', '2025-12-30 14:19:16', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:19:16'),
+(38, 37, 'PK-MTR-20251230-00038', '2025-12-30 14:40:24', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:40:24'),
+(39, 38, 'PK-MTR-20251230-00039', '2025-12-30 14:45:19', NULL, NULL, 'masuk', NULL, NULL, 2, NULL, '2025-12-30 14:45:19');
 
 -- --------------------------------------------------------
 
@@ -258,7 +296,7 @@ INSERT INTO `transaksi_parkir` (`id`, `id_kendaraan`, `kode_barcode`, `waktu_mas
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `nama` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `np` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('owner','pekerja') NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
@@ -270,11 +308,11 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `created_at`, `updated_at`, `assigned_pos_id`) VALUES
-(1, 'Admin Owner', 'owner@parkir.com', '$2y$10$ApD/.sHlVzNS4eNMVMlEgePhrwRFtmCN90Ek2Mrh2Yyz5MjLrvhcG', 'owner', '2025-10-18 17:13:43', '2025-10-18 17:18:33', NULL),
-(2, 'Budi Pekerjaa', 'pekerja@parkir.com', '$2y$10$Bqjj4NFIEjvxsViyHGcu2Ohz5X/q2H8lMilGJERx0OTElfC0nZzWm', 'pekerja', '2025-10-18 17:13:43', '2025-12-09 23:40:56', NULL),
-(3, 'jaya', 'jaya@parkir.gmail', '$2y$10$dbstPYccBKNegK2BVO8vbe4wKLXIU5lpohJTY9yWeSamRO1N9iTMO', 'pekerja', '2025-11-18 19:20:53', '2025-11-18 19:20:53', NULL),
-(4, 'randy', 'randy@parkir.com', '$2y$10$0FbeQrLBYkrJB7rke.8dyemPfn8oKJWrNXZBp.TdPbnLvNxt94OoO', 'pekerja', '2025-12-22 09:01:39', '2025-12-22 09:01:39', NULL);
+INSERT INTO `users` (`id`, `nama`, `np`, `password`, `role`, `created_at`, `updated_at`, `assigned_pos_id`) VALUES
+(1, 'Admin Owner', '123456', '$2y$10$ApD/.sHlVzNS4eNMVMlEgePhrwRFtmCN90Ek2Mrh2Yyz5MjLrvhcG', 'owner', '2025-10-18 17:13:43', '2025-12-30 17:49:04', NULL),
+(2, 'Budi Pekerjaa', '12345', '$2y$10$Bqjj4NFIEjvxsViyHGcu2Ohz5X/q2H8lMilGJERx0OTElfC0nZzWm', 'pekerja', '2025-10-18 17:13:43', '2025-12-30 17:49:14', NULL),
+(3, 'jaya', '1234', '$2y$10$dbstPYccBKNegK2BVO8vbe4wKLXIU5lpohJTY9yWeSamRO1N9iTMO', 'pekerja', '2025-11-18 19:20:53', '2025-12-30 17:49:24', NULL),
+(4, 'randy', '123', '$2y$10$0FbeQrLBYkrJB7rke.8dyemPfn8oKJWrNXZBp.TdPbnLvNxt94OoO', 'pekerja', '2025-12-22 09:01:39', '2025-12-30 17:49:33', NULL);
 
 --
 -- Indexes for dumped tables
@@ -342,7 +380,8 @@ ALTER TABLE `transaksi_parkir`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`np`),
+  ADD UNIQUE KEY `np` (`np`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -352,7 +391,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absensi`
 --
 ALTER TABLE `absensi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `jenis_kendaraan`
@@ -364,7 +403,7 @@ ALTER TABLE `jenis_kendaraan`
 -- AUTO_INCREMENT for table `kendaraan`
 --
 ALTER TABLE `kendaraan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `laporan_keuangan`
@@ -394,7 +433,7 @@ ALTER TABLE `tarif_parkir`
 -- AUTO_INCREMENT for table `transaksi_parkir`
 --
 ALTER TABLE `transaksi_parkir`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `users`

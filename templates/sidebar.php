@@ -60,6 +60,15 @@ $user_role = $_SESSION['role'] ?? 'pekerja';
                     <i class="fas fa-users w-6 text-center"></i>
                     <span class="ml-4">Manajemen Pekerja</span>
                 </a>
+                <a href="manajemen_member.php"
+                    class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
+                    <?php echo ($current_page == 'manajemen_member.php')
+                        ? 'bg-accent text-primary shadow-md'
+                        : 'hover:bg-primary-700 hover:text-accent'; ?>">
+                    <i class="fas fa-id-card w-6 text-center"></i>
+                    <span class="ml-4">Manajemen Member</span>
+                </a>
+                
 
                 <a href="laporan_absensi.php"
                     class="flex items-center px-4 py-2.5 rounded-lg font-medium transition duration-200 
